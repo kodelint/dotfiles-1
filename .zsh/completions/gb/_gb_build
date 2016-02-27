@@ -1,0 +1,18 @@
+#compdef _gb_build
+# zsh completions for '_gb_build'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+arguments=(
+    '-f[ignore cached packages if present, new packages built will overwrite]'
+    '-F[do not cache packages, cached packages will still be used for]'
+    '-q[decreases verbosity, effectively raising the output level to ERROR.]'
+    '-P[The number of build jobs to run in parallel, including test execution.]'
+    '-R[sets the base of the project root search path from the current working]'
+    '-dotfile[if provided, gb will output a dot formatted file of the build steps to]'
+    '-ldflags[list]'
+    '-gcflags[list]'
+    '-race[enable data race detection.]'
+    '-tags[list]'
+    '*:filename:_files'
+)
+_arguments -s $arguments

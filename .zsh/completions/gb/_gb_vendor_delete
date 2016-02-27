@@ -1,0 +1,9 @@
+#compdef _gb_vendor_delete
+# zsh completions for '_gb_vendor_delete'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+arguments=(
+    '-all[remove all dependencies]'
+    '*:filename:_files'
+)
+_arguments -s $arguments

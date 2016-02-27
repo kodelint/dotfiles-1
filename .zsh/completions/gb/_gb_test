@@ -1,0 +1,9 @@
+#compdef _gb_test
+# zsh completions for '_gb_test'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+arguments=(
+    '-v[print output from test subprocess.]'
+    '*:filename:_files'
+)
+_arguments -s $arguments

@@ -1,0 +1,28 @@
+#
+# neovim context aware function
+#
+
+if [[ "$1" ]]; then
+    case "$1" in
+        go)
+          nvim -p **/*.go $2
+          ;;
+        c)
+          nvim **/*.c $2
+          ;;
+        cpp)
+          nvim **/*.cpp $2
+          ;;
+        py)
+          nvim **/*.py $2
+          ;;
+        js)
+          nvim **/*.js $2
+          ;;
+        *)
+          nvim -O $@
+          ;;
+    esac
+  else
+    nvim "."
+fi
