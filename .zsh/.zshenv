@@ -288,6 +288,7 @@ path=(
   ${HOME}/bin(N-/)
   /usr/local/go/bin(N-/)
   ${GOPATH}/bin(N-/)
+  /opt/newosxbook/bin(N-/)
   ${RBENV_ROOT}/shims(N-/)
   ${NODEBREW_ROOT}/current/bin(N-/)
   ${HOME}/.nimble/bin(N-/)
@@ -325,6 +326,7 @@ manpath=(
   /opt/binutils/share/man(N-/)
   /usr/share/man(N-/)
   $DEVELOPER_DIR/usr/share/man(N-/)
+  /opt/newosxbook/share/man(N-/)
   /usr/local/share/man/ja(N-/)
   /usr/local/share/man/freebsd/man/ja(N-/)
   $manpath
