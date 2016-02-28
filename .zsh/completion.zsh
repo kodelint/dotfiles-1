@@ -1,8 +1,21 @@
 #
 # Zsh completions {{{
 #
+# cf: https://github.com/seebi/zshrc/blob/master/completion.zsh
 
-# zstyle ':compinstall' filename '/Users/zchee/.zshrc'
+
+# add an autoload function path, if directory exists
+# http://www.zsh.org/mla/users/2002/msg00232.html
+functionsd="$ZSH_CONFIG/functions.d"
+if [[ -d "$functionsd" ]] {
+    fpath=( $functionsd $fpath )
+    autoload -U $functionsd/*(:t)
+}
+
+# load completions system
+zmodload -i zsh/complist
+
+
 setopt ALWAYS_TO_END       # Move cursor to the end of a completed word
 setopt AUTO_LIST           # Automatically list choices on ambiguous completion
 setopt AUTO_MENU           # Show completion menu on a successive tab press
@@ -10,24 +23,26 @@ setopt AUTO_PARAM_SLASH    # If completed parameter is a directory, add a traili
 setopt CASE_GLOB
 setopt COMPLETE_IN_WORD    # Complete from both ends of a word
 setopt PATH_DIRS           # Perform path search even on command names with slashes
-setopt MENU_COMPLETE       # Autoselect the first completion entry
+unsetopt MENU_COMPLETE     # Autoselect the first completion entry
 unsetopt FLOW_CONTROL      # Disable start/stop characters in shell editor
 
-autoload -Uz compdef
 
-
-zstyle ':completion:*'                  accept-exact '*(N)'
-zstyle ':completion:*'                  complete-options true
-zstyle ':completion:*'                  format ' %F{yellow}-- %d --%f'
-zstyle ':completion:*'                  group-name ''
-zstyle ':completion:*'                  list-colors ${(s.:.)LS_COLORS}
-zstyle ':completion:*'                  matcher-list 'm:{a-z}={A-Z}'
-# zstyle ':completion:*'                  matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-zstyle ':completion:*'                  verbose yes
+zstyle ':completion:*'    accept-exact '*(N)'
+zstyle ':completion:*'    complete-options true
+zstyle ':completion:*'    format ' %F{yellow}-- %d --%f'
+zstyle ':completion:*'    group-name '' # for all completions: grouping the output
+zstyle ':completion:*'    list-colors ${(s.:.)LS_COLORS} # for all completions: color
+zstyle ':completion:*'    matcher-list 'm:{a-z}={A-Z}' # case insensitivity 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+# case-insensitive -> partial-word (cs) -> substring completion:
+zstyle ':completion:*'    matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*'    rehash true # auto rehash commands http://www.zsh.org/mla/users/2011/msg00531.html
+zstyle ':completion:*'    special-dirs true # completion of .. directories
+zstyle ':completion:*'    verbose yes
 
 
 # Group matches and describe.
-zstyle ':completion:*:*:*:*:*'          menu select
+# for all completions: grouping / headline / ...
+zstyle ':completion:*:*:*:*:*'          menu select=1 # for all completions: menuselection
 zstyle ':completion:*:corrections'      format ' %F{green}-- %d (errors: %e) --%f'
 zstyle ':completion:*:default'          list-prompt '%S%M matches%s'
 zstyle ':completion:*:descriptions'     format ' %F{yellow}-- %d --%f'
@@ -37,9 +52,8 @@ zstyle ':completion:*:options'          auto-description '%d'
 zstyle ':completion:*:options'          description 'yes'
 zstyle ':completion:*:warnings'         format ' %F{red}-- no matches found --%f'
 
-
 zstyle ':completion::complete:*'        cache-path "${ZDOTDIR:-$HOME}/.zcompcache"
-zstyle ':completion::complete:*'        use-cache on # Use caching to make completion for commands such as dpkg and apt usable
+zstyle ':completion::complete:*'        use-cache on
 
 
 # Fuzzy match mistyped completions
@@ -156,6 +170,11 @@ zstyle ':completion:*:(ssh|scp|rsync):*:hosts-host' ignored-patterns '*(.|:)*' l
 zstyle ':completion:*:(ssh|scp|rsync):*:hosts-domain' ignored-patterns '<->.<->.<->.<->' '^[-[:alnum:]]##(.[-[:alnum:]]##)##' '*@*'
 zstyle ':completion:*:(ssh|scp|rsync):*:hosts-ipaddr' ignored-patterns '^(<->.<->.<->.<->|(|::)([[:xdigit:].]##:(#c,2))##(|%*))' '127.0.0.<->' '255.255.255.255' '::1' 'fe80::*'
 
+# vi: advanced completion (e.g. tex and rc files first)
+zstyle ':completion::*:nvim:*:*' file-patterns 'Makefile|*(rc|log)|*.(php|tex|bib|sql|zsh|ini|sh|vim|rb|sh|js|tpl|csv|rdf|txt|phtml|tex|py|n3):vi-files:vim\ likes\ these\ files *~(Makefile|*(rc|log)|*.(log|rc|php|tex|bib|sql|zsh|ini|sh|vim|rb|sh|js|tpl|csv|rdf|txt|phtml|tex|py|n3)):all-files:other\ files'
 
+zstyle :compinstall filename '~/.zshrc'
+
+autoload -Uz compinit && compinit
 # }}}
-####################################################################################################
+###################################################################################################
