@@ -19,6 +19,10 @@ alias pi='pip3'
 # Build
 alias nj="ninja"
 
+# Darwin kernel layer commands
+alias jt='jtool'
+alias prox='procexp'
+
 # brew
 alias brew='CURL_CA_BUNDLE= brew'
 alias brwif='brew info'
