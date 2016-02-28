@@ -1,0 +1,48 @@
+#compdef procexp
+
+# Usage: procexp [pid|all] [core|fds|ports|net|tree|threads|regions|all]
+#            or
+#        procexp vmmon
+
+typeset -A opt_args
+
+_procexp() {
+  local -a commands sort_by
+  commands=(
+  'pid'
+  'all'
+  'vmmon'
+  )
+
+  _arguments \
+    "1: :{_describe 'gb command' commands}" \
+    '*:: :->args'
+
+  case $state in
+    args)
+      sort_by=(
+      '::core[sort by core]'
+      '::fds[sort by fds]'
+      '::ports[sort by ports]'
+      '::net[sort by net]'
+      '::tree[sort by tree]'
+      '::threads[sort by threads]'
+      '::regions[sort by regions]'
+      '::all[sort by all]'
+      )
+
+      case $words[1] in
+        all)
+          _arguments \
+            ${sort_by[@]}
+            ;;
+
+        vmmon)
+          _arguments \
+            ;;
+      esac
+      ;;
+  esac
+}
+
+_procexp
