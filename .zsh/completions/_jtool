@@ -1,0 +1,135 @@
+#compdef jtool
+
+# This is jtool v0.9899 (Addis) with numerous bug fixes, compiled on Jan 30 2016 23:50:49
+#
+# Usage: jtool [options] _filename_
+#
+# OTool Compatible Options:
+#    -arch ..             For fat (universal) binaries: i386,x86_64[h], arm[v[67]]
+#    -h                   print header (ELF or Mach-O)
+#    -f                   print fat header
+#    -l                   List sections/commands in binary
+#    -L                   List shared libraries used (like LDD)
+#    -v[v]                Verbose output. -vv is even more verbose. -vvv might be more than you can handle :-)
+#
+# New Options:
+#    --pages              Show file page map (similar to pagestuff(1))
+#    -a _offset_          Find virtual address corresponding to file offset _offset
+#    -e[xtract] _name_    Extract section/segment _name_ in binary, or file _name_ from shared cache
+#    -e[xtract] arch      Extract selected architecture from FAT file. Specify arch with -arch .. or ARCH=
+#    -e[xtract] signature Extract code signature from binary
+#    -F [_string_]        find all occurrences of _string_ in binary
+#       -Fs _string_      also show search results (experimental)
+#    -S                   List Symbols (like NM)
+#       -Sa _address_ _symbolname_        Add symbolname manually for address (to .jtool)
+#       -Sd _symbolname_ (not yet)        Remove symbolname for address (to .jtool)
+#    -p _addr_[,_size_]   Peek at _size_ bytes in virtual _address_ in binary (like OD, but on memory)
+#
+# dyldinfo Compatible Options:
+#    -bind                print addresses dyld will set based on symbolic lookups
+#    -lazy_bind           print symbols which dyld will lazily set on first use
+#    -weak_bind           print symbols which dyld must coalesce
+#    -export              print addresses of all symbols this file exports
+#    -opcodes             print opcodes used to generate the rebase and binding information
+#    -function_starts     print table of function start addresses
+#    -data_in_code        print any data-in-code inforamtion
+#
+# Destructive Options (will write output to /tmp):
+#    -i                   Inject (Experimental)
+#      -iL _soname_               Library (ELF only)
+#      -iS _secname_ _size_       Section (ELF only)
+#      -is _sym:_val[,_sym:val]   Symbol(s) with value(s) (comma delimited)
+#    -r                   Remove/Resize (Experimental)
+#      -rL _dylib/soname_         Library
+#      -rC _Load_Command_#_       Load Command
+#    -/+pie               Toggle Position Independent Executable (ASLR)
+#    -/+lcmain            Toggle pre-Mountain-Lion/iOS6 compatibility (LC_UNIXTHREAD/LC_MAIN)
+#
+# Disassembly/Dump Options:
+#    -d[_arg_[,size]]     disassemble/dump (experimental) -  _arg_ may specify address/section/symbol/Obj-C class. size is optional
+#      -dA [_arg_[,size]] Disassemble as ARM code (32-bit instructions)
+#      -dT [_arg_[,size]] Disassemble as Thumb/Thumb-2 code (16/32-bit instructions)
+#      -dD [_arg_[,size]] Dump (even on a text segment)
+#      -do [_arg_[,size]] Dump/Disassemble from offset, rather than address
+#      -d objc            Dump objective-C classes in binary, if any
+#    -opcodes             Also dump opcode bytes
+#    --jtooldir _path_    path to search for companion jtool files (default: $PWD).
+#                         Use this to force create a file, if one does not exist
+#
+# Code Signing Options:
+#    --sig                Show code signature in binary (if any)
+#    --sign [adhoc]       self-sign with no certificate
+#    --ident _ident_      provides identity (fake, of course)
+#    --appdir             Set App Path (for code signing and/or verification)
+#    --ent                Show entitlements in binary (if any)
+#
+# Advanced Options:
+#    --pcrelative         show addresses as PC relative offset
+#    --slide  _slide_     slide text by _slide_ bytes (may be negative)
+#    --rebase _address_   rebase text to this address (destructive)
+#    --version            Show tool version and compilation date
+#
+# Output Options:
+#    --html               Output as HTML (implies color)
+#    --curses             Output as Color using ncurses (can also set JCOLOR=1)
+#
+# Note: Experimental features may not be available in public version of this tool
+
+local arguments
+
+arguments=(
+    '--appdir[Set App Path (for code signing and/or verification)]'
+    '--curses[Output as Color using ncurses (can also set JCOLOR=1)]'
+    '--ent[Show entitlements in binary (if any)]'
+    '--html[Output as HTML (implies color)]'
+    '--ident[provides identity (fake, of course)]:ident'
+    '--jtooldir[path to search for companion jtool files (default: $PWD).]:path'
+    '--pages[Show file page map (similar to pagestuff(1))]'
+    '--pcrelative[show addresses as PC relative offset]'
+    '--rebase[rebase text to this address (destructive)]:address'
+    '--sig[Show code signature in binary (if any)]'
+    '--sign[self-sign with no certificate]'
+    '--slide[slide text by _slide_ bytes (may be negative)]:slide'
+    '--version[Show tool version and compilation date]'
+    '-F[find all occurrences of _string_ in binary]:_string_'
+    '-Fs[also show search results (experimental)]:_string_'
+    '-L[List shared libraries used (like LDD)]'
+    '-S[List Symbols (like NM)]'
+    '-Sa[Add symbolname manually for address (to .jtool)]:_address_:_symbolname_'
+    '-Sd[(not yet)	Remove symbolname for address (to .jtool)]:_symbolname_'
+    '-a[Find virtual address corresponding to file offset]:_offset'
+    '-arch[For fat (universal) binaries: i386, x86_64\[h\], arm\[v\[67\]\]]:arch:(i386 x86_64 x86_64h armv armv6 armv7)'
+    '-bind[print addresses dyld will set based on symbolic lookups]'
+    '-d[disassemble/dump (experimental) arg may specify address/section/symbol/Obj-C class. size is optional]:address/section/symbol/Obj-C arg'
+    '-d objc[Dump objective-C classes in binary, if any]:arg::size'
+    '-dA[Disassemble as ARM code (32-bit instructions)]:arg::size'
+    '-dD[Dump (even on a text segment)]:arg::size'
+    '-dT[Disassemble as Thumb/Thumb-2 code (16/32-bit instructions)]:arg::size'
+    '-do[Dump/Disassemble from offset, rather than address]:arg::size'
+    '-data_in_code[print any data-in-code inforamtion]'
+    '-e[Extract selected (section/segment name|architecture|code signature from binary]:name/arch/signature'
+    '-export[print addresses of all symbols this file exports]'
+    '-f[print fat header]'
+    '-function_starts[print table of function start addresses]'
+    '-h[print header (ELF or Mach-O)]'
+    '-i[Inject (Experimental)]'
+    '-iL[Library (ELF only)]:_soname_'
+    '-iS[Section (ELF only)]:_secname_:_size_'
+    '-is[Symbol(s) with value(s) (comma delimited)]:_sym'
+    '-l[List sections/commands in binary]'
+    '-lazy_bind[print symbols which dyld will lazily set on first use]'
+    {-lcmain,+lcmain}'[Toggle pre-Mountain-Lion/iOS6 compatibility (LC_UNIXTHREAD/LC_MAIN)]'
+    '-opcodes[print opcodes used to generate the rebase and binding information]'
+    '-p[Peek at _size_ bytes in virtual _address_ in binary (like OD, but on memory)]:_addr_:_size_'
+    {-pie,+pie}'[Toggle Position Independent Executable (ASLR)]'
+    '-r[Remove/Resize (Experimental)]'
+    '-rC[Load Command]:Load_Command'
+    '-rL[Library]:dylib/soname'
+    '-v[Verbose output]'
+    '-vv[more verbose output]'
+    '-vvv[Verbose output with might be more than you can handle]'
+    '-weak_bind[print symbols which dyld must coalesce]'
+    '*:filename:_files'
+)
+
+_arguments -S $arguments
