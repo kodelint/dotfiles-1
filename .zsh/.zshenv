@@ -125,9 +125,11 @@ export NVIM_GO_LOG_FILE="${XDG_LOG_HOME}/nvim/go/nvim-go.log"
 # export NVIM_PYTHON_LOG_FILE="${XDG_LOG_HOME}/nvim/python/python-client.log"
 # export NVIM_PYTHON_LOG_LEVEL="DEBUG"
 
+
 # curl
 export CURL_CA_BUNDLE="/usr/local/etc/openssl/certs/curl-ca-bundle.crt"
 # export SSL_CERT_FILE=/usr/local/etc/openssl/certs/ca-bundle.crt
+
 
 # Docker Machine
 # Always use experimental install
@@ -136,6 +138,7 @@ export MACHINE_DRIVER_DEBUG=1
 export MACHINE_DOCKER_INSTALL_URL=https://experimental.docker.com
 export MACHINE_NATIVE_SSH=1
 # export MACHINE_BUGSNAG_API_TOKEN=
+
 
 # ls colors
 eval "$(/opt/coreutils/bin/dircolors --sh)"
@@ -172,6 +175,7 @@ export LESS_TERMCAP_us=$(printf "\e[1;32m")
 # gcloud support only python2 when install gcloud
 export CLOUDSDK_PYTHON=/usr/local/bin/python2
 
+
 # z.sh
 export _Z_DATA="${XDG_CACHE_HOME}/z/.z"
 if ! [ -f "$_Z_DATA" ]; then
@@ -187,6 +191,10 @@ if [[ ! -d "$NQDIR" ]]; then
 fi
 
 
+# jtool, procexp
+export JCOLOR=1
+
+
 # Homebrew
 export HOMEBREW_CACHE="${XDG_CACHE_HOME}/Homebrew"
 export HOMEBREW_DEBUG=1
@@ -194,8 +202,6 @@ export HOMEBREW_DEVELOPER=1
 export HOMEBREW_MAKE_JOBS=9
 export HOMEBREW_VERBOSE=1
 export HOMEBREW_CASK_OPTS=--appdir=/Applications\ --caskroom=/Applications/Caskroom
-
-# gnulib
 
 
 # }}}
