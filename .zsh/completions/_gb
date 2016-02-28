@@ -261,7 +261,7 @@ _gb() {
 
                 fetch)
                   _arguments \
-                    '-all:fetch all'
+                    '-all:fetch all' \
                     '-branch[fetch from the name branch]' \
                     '-no-recurse[do not fetch recursively]' \
                     '-tag[fetch the specified tag]' \
