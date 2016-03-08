@@ -1,15 +1,33 @@
 #!/bin/bash
 set -e
 
-
-# Building CERN ROOT6 CMake flags script
-#   ROOT6 build option list:
-#     - https://root.cern.ch/building-root
+# Building LLVM on OSX CMake setup script
 #
-# Latest tested clang version:
-#   Apple LLVM version 7.3.0 (clang-703.0.26)
+# Required:
+#   - clang by Xcode6 or later
+#   - cmake
+#   - ninja
+#
+# Usage:
+#   build-llvm.bash <CMAKE GENERATORS> <PYTHON VERSION> [$SOURCE_DIR $DIST_DIR]
+#
+#   CMake Generators: Unix Makefiles, Ninja, Xcode (Recommend is Ninja)
+#
+#   Python Version: 2 or 3
+#     - for LLDB dylib
+#
+# Tested version:
+#   Apple LLVM version 7.3.0 (clang-703.0.28)
 #   Target: x86_64-apple-darwin15.4.0
-#   Thread model: posix
+#
+#
+# References:
+#   - llvm 3.8 currently requires Xcode 7(OS X 10.10 or 10.11) Build the new tsan support in compiler-rt or using
+#     - -DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON
+#     - Ref: https://groups.google.com/forum/m/#!topic/llvm-dev/Uxb1o83qTMI
+#   - Building with Clan Address Sanitizer(ASan)
+#     - https://trac.webkit.org/wiki/ASanWebKit
+#
 
 
 if ! [[ -n $3 ]]; then
@@ -25,12 +43,15 @@ if ! [[ -n $PYTHON_PREFIX ]]; then
   PYTHON_PREFIX=$(python$2-config --prefix)
 fi
 
+# -DPYTHON_EXECUTABLE=/usr/local/bin/python3
 if ! [[ -n $PYTHON_EXECUTABLE ]]; then
   PYTHON_EXECUTABLE=$(which python$PYTHON_SELECT_VERSION)
 fi
+# -DPYTHON_INCLUDE_DIR=/usr/local/Frameworks/Python.framework/Versions/3.6/include/python3.6m
 if ! [[ -n $PYTHON_INCLUDE_DIR ]]; then
   PYTHON_INCLUDE_DIR=$PYTHON_PREFIX/include/python$PYTHON_SELECT_VERSION
 fi
+# -DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/3.6/lib/libpython3.6m.dylib
 if ! [[ -n $PYTHON_LIBRARY ]]; then
   PYTHON_LIBRARY=$PYTHON_PREFIX/lib/libpython$PYTHON_SELECT_VERSION.dylib
 fi
@@ -163,7 +184,7 @@ command cmake $SRC_DIR -G $1 \
   -DLLD_USE_VTUNE:BOOL=OFF \
   \
   -DLLVM_BUILD_EXAMPLES:BOOL=ON \
-  -DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=OFF \
+  -DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON \
   -DLLVM_BUILD_LLVM_C_DYLIB:BOOL=ON \
   -DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
   -DLLVM_CREATE_XCODE_TOOLCHAIN:BOOL=OFF \
