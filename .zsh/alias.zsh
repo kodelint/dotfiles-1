@@ -3,7 +3,7 @@
 # alias no="nvim -p $@"
 # config file alias
 alias nv="${EDITOR} ${HOME}/.config/nvim/init.vim"
-alias nvr="nvim -c 'UpdateRemotePlugins' -c 'q' >/dev/null; cat ${HOME}/.nvim/.init.vim-rplugin\~"
+alias nvr="nvim -c 'call dein#clear_cache()' -c 'UpdateRemotePlugins' -c 'q' >/dev/null; cat ${HOME}/.nvim/.init.vim-rplugin\~"
 alias tm="${EDITOR} ${HOME}/.tmux.conf"
 alias irrc="${EDITOR} ${HOME}/.irssi/config"
 
