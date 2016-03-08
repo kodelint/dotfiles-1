@@ -29,29 +29,26 @@ unsetopt FLOW_CONTROL      # Disable start/stop characters in shell editor
 
 zstyle ':completion:*'    accept-exact '*(N)'
 zstyle ':completion:*'    complete-options true
-zstyle ':completion:*'    format ' %F{yellow}-- %d --%f'
 zstyle ':completion:*'    group-name '' # for all completions: grouping the output
 zstyle ':completion:*'    list-colors ${(s.:.)LS_COLORS} # for all completions: color
 zstyle ':completion:*'    matcher-list 'm:{a-z}={A-Z}' # case insensitivity 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-# case-insensitive -> partial-word (cs) -> substring completion:
-zstyle ':completion:*'    matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 zstyle ':completion:*'    rehash true # auto rehash commands http://www.zsh.org/mla/users/2011/msg00531.html
-zstyle ':completion:*'    special-dirs true # completion of .. directories
 zstyle ':completion:*'    verbose yes
 
-
-# Group matches and describe.
-# for all completions: grouping / headline / ...
+# Group matches and describe format
+zstyle ':completion:*'                  format ' %F{yellow}-- %d --%f'
 zstyle ':completion:*:*:*:*:*'          menu select=1 # for all completions: menuselection
-zstyle ':completion:*:corrections'      format ' %F{green}-- %d (errors: %e) --%f'
 zstyle ':completion:*:default'          list-prompt '%S%M matches%s'
+zstyle ':completion:*:corrections'      format ' %F{green}-- %d (errors: %e) --%f'
 zstyle ':completion:*:descriptions'     format ' %F{yellow}-- %d --%f'
 zstyle ':completion:*:matches'          group 'yes'
 zstyle ':completion:*:messages'         format ' %F{purple} -- %d --%f'
-zstyle ':completion:*:options'          auto-description '%d'
-zstyle ':completion:*:options'          description 'yes'
 zstyle ':completion:*:warnings'         format ' %F{red}-- no matches found --%f'
 
+zstyle ':completion:*:options'          auto-description '%d'
+zstyle ':completion:*:options'          description 'yes'
+
+# Caching coompletion results
 zstyle ':completion::complete:*'        cache-path "${ZDOTDIR:-$HOME}/.zcompcache"
 zstyle ':completion::complete:*'        use-cache on
 
