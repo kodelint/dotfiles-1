@@ -6,10 +6,14 @@ set -e
 #   ROOT6 build option list:
 #     - https://root.cern.ch/building-root
 #
-# Latest tested clang version:
-#   Apple LLVM version 7.3.0 (clang-703.0.26)
+# Tested version:
+#   Apple LLVM version 7.3.0 (clang-703.0.28)
 #   Target: x86_64-apple-darwin15.4.0
-#   Thread model: posix
+#
+#
+# References:
+#   OS X building broken?:
+#     https://root.cern.ch/phpBB3/viewtopic.php?t=19816
 
 
 # if [[ ! -n $1 ]]; then
