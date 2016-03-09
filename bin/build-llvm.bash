@@ -9,7 +9,7 @@ set -e
 #   - ninja
 #
 # Usage:
-#   build-llvm.bash <CMAKE GENERATORS> <PYTHON VERSION> [$SOURCE_DIR $DIST_DIR]
+#   build-llvm.bash <LLVM Source Directory> <CMAKE GENERATORS> <PYTHON VERSION> [$SOURCE_DIR $DIST_DIR]
 #
 #   CMake Generators: Unix Makefiles, Ninja, Xcode (Recommend is Ninja)
 #
@@ -27,20 +27,28 @@ set -e
 #     - Ref: https://groups.google.com/forum/m/#!topic/llvm-dev/Uxb1o83qTMI
 #   - Building with Clan Address Sanitizer(ASan)
 #     - https://trac.webkit.org/wiki/ASanWebKit
+#   - Not build llvm-dsymutil
+#     - When LLVM_ENABLE_LTO, link for llvm-dsymutil too slow...
+#     - github.com/apple/apple-llvm instead of
+#     - -DLLVM_TOOL_DSYMUTIL_BUILD:BOOL=OFF
+#   - clang: error: unsupported argument 'all' to option 'fno-sanitize='
+#     - ag "  -fno-sanitize=all" -l | xargs sed -i 's/  -fno-sanitize=all//'
+#     - Maybe -DLLVM_USE_SANITIZER:STRING=Undefined ?
 #
 
 
-if ! [[ -n $3 ]]; then
-  SRC_DIR=../llvm
+if ! [[ -n $1 ]]; then
+  echo "llvm source directory"
+  exit 1
 fi
-if ! [[ -n $3 ]]; then
-  DST_DIR=./build
+if ! [[ $DST_DIR ]]; then
+  DST_DIR=/opt/llvm
 fi
 
-PYTHON_SELECT_VERSION=$(python$2-config --prefix | awk -F / '{print $NF}')
+PYTHON_SELECT_VERSION=$(python$3-config --prefix | awk -F / '{print $NF}')
 
 if ! [[ -n $PYTHON_PREFIX ]]; then
-  PYTHON_PREFIX=$(python$2-config --prefix)
+  PYTHON_PREFIX=$(python$3-config --prefix)
 fi
 
 # -DPYTHON_EXECUTABLE=/usr/local/bin/python3
@@ -49,7 +57,11 @@ if ! [[ -n $PYTHON_EXECUTABLE ]]; then
 fi
 # -DPYTHON_INCLUDE_DIR=/usr/local/Frameworks/Python.framework/Versions/3.6/include/python3.6m
 if ! [[ -n $PYTHON_INCLUDE_DIR ]]; then
-  PYTHON_INCLUDE_DIR=$PYTHON_PREFIX/include/python$PYTHON_SELECT_VERSION
+  if ! [[ -n $3 == "3" ]]; then
+    PYTHON_INCLUDE_DIR=$PYTHON_PREFIX/include/python$PYTHON_SELECT_VERSIONm
+  else
+    PYTHON_INCLUDE_DIR=$PYTHON_PREFIX/include/python$PYTHON_SELECT_VERSION
+  fi
 fi
 # -DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/3.6/lib/libpython3.6m.dylib
 if ! [[ -n $PYTHON_LIBRARY ]]; then
@@ -98,7 +110,7 @@ usage() {
   echo "$USAGE_ENVIRONMENT_VARIABLE"
   exit 1
 }
-if [[ ! -n $2 ]]; then
+if [[ ! -n $3 ]]; then
   PYTHON_VERSION=3
   usage
 fi
@@ -123,7 +135,7 @@ if [[ ! -d "$DST_DIR" ]]; then
 fi
 cd $DST_DIR
 
-command cmake $SRC_DIR -G $1 \
+command cmake $2 -G $1 \
   \
   -DBUILD_SHARED_LIBS:BOOL=OFF \
   \
@@ -161,9 +173,6 @@ command cmake $SRC_DIR -G $1 \
   -DCURSES_NCURSES_LIBRARY:FILEPATH=/usr/local/lib/libncurses.dylib \
   -DCURSES_PANEL_LIBRARY:FILEPATH=/usr/local/lib/libpanel.dylib \
   \
-  -DDARWIN_10.4_ARCHS:STRING=x86_64 \
-  -DDARWIN_osx_ARCHS:STRING=x86_64 \
-  \
   -DDEFAULT_SYSROOT:PATH="$(xcrun --show-sdk-path)" \
   \
   -DLIBCLANG_BUILD_STATIC:BOOL=OFF \
@@ -193,7 +202,7 @@ command cmake $SRC_DIR -G $1 \
   -DLLVM_ENABLE_FFI:BOOL=ON \
   -DLLVM_ENABLE_LIBCXX:BOOL=ON \
   -DLLVM_ENABLE_LIBCXXABI:BOOL=ON \
-  -DLLVM_ENABLE_LTO:STRING=ON \
+  -DLLVM_ENABLE_LTO:STRING=OFF \
   -DLLVM_ENABLE_SPHINX:BOOL=OFF \
   -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD:STRING= \
   -DLLVM_EXTERNALIZE_DEBUGINFO:BOOL=ON \
@@ -201,11 +210,12 @@ command cmake $SRC_DIR -G $1 \
   -DLLVM_INCLUDE_EXAMPLES:BOOL=ON \
   -DLLVM_LINK_LLVM_DYLIB:BOOL=OFF \
   -DLLVM_OPTIMIZED_TABLEGEN:BOOL=ON \
-  -DLLVM_PARALLEL_COMPILE_JOBS:STRING=9 \
-  -DLLVM_PARALLEL_LINK_JOBS:STRING=9 \
+  -DLLVM_PARALLEL_COMPILE_JOBS:STRING=8 \
+  -DLLVM_PARALLEL_LINK_JOBS:STRING=8 \
   -DLLVM_TARGET_ARCH:STRING=host \
-  -DLLVM_TARGETS_TO_BUILD=X86 \
+  -DLLVM_TARGETS_TO_BUILD:STRING=X86 \
   -DLLVM_TOOL_CLANG_TOOLS_EXTRA_BUILD:BOOL=OFF \
+  -DLLVM_TOOL_DSYMUTIL_BUILD:BOOL=OFF \
   -DLLVM_USE_SPLIT_DWARF:BOOL=OFF \
   \
   -DPOLLY_ENABLE_GPGPU_CODEGEN:BOOL=ON \
@@ -215,4 +225,9 @@ command cmake $SRC_DIR -G $1 \
   \
   $(echo $PYTHON) \
   $(echo $LIBFFI) \
-  $(echo $LIBXML2)
+  $(echo $LIBXML2) \
+  \
+  -DLLVM_TOOL_LTO_BUILD:BOOL=OFF
+
+  # -DDARWIN_10.4_ARCHS:STRING=x86_64 \
+  # -DDARWIN_osx_ARCHS:STRING=x86_64 \
