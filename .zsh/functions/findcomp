@@ -1,0 +1,3 @@
+# find compdef file in $fpath
+
+find $(echo $fpath | awk -F: 'BEGIN{OFS="\n"}{$1=$1;print}') -name _$1

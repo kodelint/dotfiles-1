@@ -1,0 +1,15 @@
+#compdef docker-machine
+
+# zsh completions for 'docker-machine'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+
+arguments=(
+    '--swarm[Display the Swarm config instead of the Docker daemon]'
+    '--shell[environment to be configured for specified shell]'
+    {--unset,-u}'[Unset variables instead of setting them]'
+    '--no-proxy[Add machine IP to NO_PROXY environment variable]'
+    '*:filename:_files'
+)
+
+_arguments -s $arguments

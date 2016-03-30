@@ -4,7 +4,7 @@
 
 
 # Format settings
-_git_log_medium_format='%C(bold)Commit:%C(reset) %C(green)%H%C(red)%d%n%C(bold)Author:%C(reset) %C(cyan)%an <%ae>%n%C(bold)Date:%C(reset)   %C(blue)%ai (%ar)%C(reset)%n%+B'
+# _git_log_medium_format='%C(bold)Commit:%C(reset) %C(green)%H%C(red)%d%n%C(bold)Author:%C(reset) %C(cyan)%an <%ae>%n%C(bold)Date:%C(reset)   %C(blue)%ai (%ar)%C(reset)%n%+B'
 _git_log_oneline_format='%C(green)%h%C(reset) %s%C(red)%d%C(reset)%n'
 _git_log_brief_format='%C(green)%h%C(reset) %s%n%C(blue)(%ar by %an)%C(red)%d%C(reset)%n'
 
@@ -15,9 +15,9 @@ _git_log_brief_format='%C(green)%h%C(reset) %s%n%C(blue)(%ar by %an)%C(red)%d%C(
 
 # Git & hub
 alias g='hub'
-if type hub >/dev/null 2>&1; then
-  function git(){hub "$@"}
-fi
+# if type hub >/dev/null 2>&1; then
+#   function git(){hub "$@"}
+# fi
 
 
 # Lists
@@ -42,7 +42,6 @@ fi
 
 # (b)ranch
 alias  gba='git branch'
-alias gbaX='git branch --delete --force'
 alias gbc='git checkout -b'
 alias gbL='git branch --all --verbose'
 alias gbl='git branch --verbose'
@@ -51,6 +50,7 @@ alias gbm='git branch --move'
 alias gbs='git show-branch'
 alias gbsall='git show-branch --all'
 alias gbx='git branch --delete'
+alias gbX='git branch --delete --force'
 
 # (c)ommit
 alias gc='git commit --verbose --signoff' # (C)ommit with show all change log
@@ -87,8 +87,17 @@ alias gf='git fetch'
 alias gfa='git fetch --all'
 alias gcl='git clone'
 alias gfc='git clone'
-alias gfp='git pull'
 alias gfr='git pull --rebase'
+
+# http://qiita.com/tarr1124/items/d807887418671adbc46f
+gfp() {
+  USER_BRANCH=$2
+  USER_BRANCH=(${(s/:/)USER_BRANCH})
+  git fetch origin pull/"$1"/head:"$USER_BRANCH[2]"
+  git branch --move $USER_BRANCH[2] pull/"$1"/"$USER_BRANCH[1]"/"$USER_BRANCH[2]"
+  unset USER_BRANCH
+}
+      # gfp() { git fetch origin pull/"$1"/head:"$2"; git branch --move "$2" "pull/$1/$2" }
 
 # Grep (g)
 # alias gg='git grep'
@@ -111,7 +120,8 @@ alias giX='git rm -rf --cached'
 
 # Log (l)
 # Default git log style
-alias gl='git log --topo-order --stat --full-diff --graph --color --decorate=full --pretty=format:"${_git_log_medium_format}"'
+# alias gl='git log --topo-order --stat --full-diff --graph --color --decorate=full --pretty=format:"${_git_log_medium_format}"'
+alias gl='git log --topo-order --stat --full-diff --graph --color --decorate=full'
 
 alias gla='gl --all'                                                                        # Display all refs in refs/
 alias glb='git log --topo-order --pretty=format:"${_git_log_brief_format}"'                 # Brief format(need?)

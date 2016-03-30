@@ -310,13 +310,16 @@ _gb() {
                   ;;
 
                 help)
-                  _arguments \
-                    'fetch[fetch a remote dependency]' \
-                    'update[update a local dependency]' \
-                    'list[lists dependencies, one per line]' \
-                    'delete[deletes a local dependency]' \
-                    'purge[purges all unreferenced dependencies]' \
-                    'restore[restore dependencies from the manifest]'
+                  local -a help_cmd
+                  help_cmd=(
+                  'fetch:fetch a remote dependency' \
+                  'update:update a local dependency' \
+                  'list:lists dependencies, one per line' \
+                  'delete:deletes a local dependency' \
+                  'purge:purges all unreferenced dependencies' \
+                  'restore:restore dependencies from the manifest'
+                  )
+                  _arguments "1: :{_describe 'help command' help_cmd}"
                   ;;
               esac
               ;;

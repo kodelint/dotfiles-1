@@ -116,7 +116,8 @@ zstyle ':completion:*:*files' ignored-patterns \
   \
   '*.DS_Store' \
   '*tags' \
-  '.ycm_extra_conf.pyc'
+  '.ycm_extra_conf.pyc' \
+  '*__pycache__'
 
 # nvim: binary is '*\~'
 # zstyle ':completion:*:(n|nvim):*:*files' ignored-patterns \

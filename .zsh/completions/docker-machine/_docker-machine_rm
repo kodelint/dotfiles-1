@@ -1,0 +1,13 @@
+#compdef docker-machine
+
+# zsh completions for 'docker-machine'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+
+arguments=(
+    {--force,-f}'[Remove local configuration even if machine cannot be removed]'
+    '-y[Assumes automatic yes to proceed with remove, without prompting further user confirmation]'
+    '*:filename:_files'
+)
+
+_arguments -s $arguments

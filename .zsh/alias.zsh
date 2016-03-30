@@ -4,6 +4,7 @@
 # config file alias
 alias nv="${EDITOR} ${HOME}/.config/nvim/init.vim"
 alias nvr="nvim -c 'call dein#clear_state() | call dein#clear_cache()' -c 'UpdateRemotePlugins' -c 'q' >/dev/null; cat ${HOME}/.nvim/.init.vim-rplugin\~"
+alias nud="nvim -c 'call dein#update()' -c 'qall!'; cat ${HOME}/.nvim/.init.vim-rplugin\~"
 alias tm="${EDITOR} ${HOME}/.tmux.conf"
 alias irrc="${EDITOR} ${HOME}/.irssi/config"
 
@@ -46,6 +47,8 @@ alias casks='brew cask search'
 alias caskx='brew cask uninstall'
 
 # Tools
+alias ag="ag --color-match '37;45'"
+alias aria='aria2c'
 alias c='ccat --bg=dark'
 alias irssi='TERM=screen-256color irssi'
 alias tvi="${HOME}/bin/travis"
@@ -53,10 +56,16 @@ alias get='ghq get -u'
 alias diff='git diff'
 alias ipython='ipython --matplotlib=auto'
 alias htop='sudo htop'
+alias pbc='| tr -d "\n" | pbcopy'
+
+# Languages
+alias pip='pip2' # lock python2
 
 # Clipboard
 alias path='echo -n `pwd` | pbcopy'
 
+# Utility
+      csum() { curl -L --silent $1 | shasum -a 256 | awk '{print $1}' }
 
 # man() {
 # env \
@@ -67,7 +76,7 @@ alias path='echo -n `pwd` | pbcopy'
 #     LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
 #     LESS_TERMCAP_ue=$(printf "\e[0m") \
 #     LESS_TERMCAP_us=$(printf "\e[1;32m") \
-#     PAGER="${commands[less]:-$PAGER}" \
+#     PAGER="${commands[less]-R:-$PAGER}" \
 #     _NROFF_U=1 \
 #     PATH="$HOME/bin:$PATH" \
 #     man "$@"

@@ -19,9 +19,12 @@ alias dst='docker stop'
 alias drd="docker run -d -P" # Run deamonized container, e.g., $dkd base /bin/echo hello
 alias dri='docker run --rm -i -t -P' # Run interactive container, e.g., $dki base /bin/bash
 
-# docker functions
+# Docker functions
+
 # build dockerfile
 dbu() { docker build --rm -t="$1" $2 .; }
+# Run docker container
+drun() { docker run $1 --rm ; }
 # Start all containers
 dstart() { "docker" start $("docker" ps -a -q); }
 # Stop all containers

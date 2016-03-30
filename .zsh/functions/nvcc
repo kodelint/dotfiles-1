@@ -1,0 +1,4 @@
+#
+# set default date command output
+#
+# PATH=~/.config/nvcc:$PATH nvcc "$@"

@@ -1,0 +1,12 @@
+#compdef docker-machine
+
+# zsh completions for 'docker-machine'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+
+arguments=(
+    {--force,-f}'[Force rebuild and do not prompt]'
+    '*:filename:_files'
+)
+
+_arguments -s $arguments

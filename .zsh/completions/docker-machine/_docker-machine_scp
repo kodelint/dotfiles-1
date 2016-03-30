@@ -1,0 +1,12 @@
+#compdef docker-machine
+
+# zsh completions for 'docker-machine'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+
+arguments=(
+    {--recursive,-r}'[Copy files recursively (required to copy directories)]'
+    '*:filename:_files'
+)
+
+_arguments -s $arguments

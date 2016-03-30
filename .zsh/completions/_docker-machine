@@ -1,1 +1,389 @@
-/Users/zchee/src/github.com/zchee/zsh-completion-library/_docker-machine
+#compdef docker-machine
+# ------------------------------------------------------------------------------
+# Description
+# -----------
+#
+#  Completion script for Docker Machine (http://docs.docker.com/machine/).
+#  Adapted from boot2docker completion by hhatto (https://github.com/hhatto)
+#  and docker completion by @aeonazaan and @bobmaerten.
+#
+# ------------------------------------------------------------------------------
+# Authors
+# -------
+#
+#  * ilkka (https://github.com/ilkka)
+#
+# ------------------------------------------------------------------------------
+
+# helper function for completing available machines
+__machines() {
+
+  declare -a machines_cmd
+  # machines_cmd=($(docker-machine ls|tail +2|awk '{print $1":"$3"("$4")"}'))
+  machines_cmd=($(ls $HOME/.docker/machine/machines))
+  _describe 'machines' machines_cmd
+}
+
+# subcommands
+local -a _docker_machine_cmds
+
+_docker_machine_cmds=(
+   'active:Print which machine is active' \
+   'config:Print the connection config for machine' \
+   'create:Create a machine' \
+   'env:Display the commands to set up the environment for the Docker client' \
+   'inspect:Inspect information about a machine' \
+   'ip:Get the IP address of a machine' \
+   'kill:Kill a machine' \
+   'ls:List machines' \
+   'regenerate-certs:Regenerate TLS Certificates for a machine' \
+   'restart:Restart a machine' \
+   'rm:Remove a machine' \
+   'ssh:Log into or run a command on a machine with SSH' \
+   'scp:Copy files between machines' \
+   'start:Start a machine' \
+   'status:Get the status of a machine' \
+   'stop:Stop a machine' \
+   'upgrade:Upgrade a machine to the latest version of Docker' \
+   'url:Get the URL of a machine' \
+   'version:Show the Docker Machine version information' \
+   'help:Shows a list of commands or help for one command'
+)
+
+# subcommand completion functions
+__active() {
+  __machines
+}
+
+__help() {
+  _values 'Get help for subcommand' \
+    'active' \
+    'config' \
+    'create' \
+    'env' \
+    'inspect' \
+    'ip' \
+    'kill' \
+    'ls' \
+    'regenerate-certs' \
+    'restart' \
+    'rm' \
+    'ssh' \
+    'scp' \
+    'start' \
+    'status' \
+    'stop' \
+    'upgrade' \
+    'url' \
+    'version' \
+    'help' \
+}
+
+__config() {
+  __machines
+  _arguments \
+    '--swarm[Display the Swarm config instead of the Docker daemon]'
+}
+
+__create() {
+  _arguments \
+  \
+  {--driver,-d}:'Driver to create machine with:(amazonec2 azure digitalocean google none openstack rackspace softlayer virtualbox vmwarefusion vmwarevcloudair vmwarevsphere xhyve)' \
+  \
+                  '--amazonec2-access-key:AWS Access Key                                 [$AWS_ACCESS_KEY_ID]:()' \
+                         '--amazonec2-ami:AWS machine image                              [$AWS_AMI]:()' \
+                 '--amazonec2-device-name:AWS root device name "/dev/sda1"               [$AWS_DEVICE_NAME]:()' \
+        '--amazonec2-iam-instance-profile:AWS IAM Instance Profile                       [$AWS_INSTANCE_PROFILE]:()' \
+               '--amazonec2-instance-type:AWS instance type "t2.micro"                   [$AWS_INSTANCE_TYPE]:(t2.nano t2.micro t2.small t2.medium t2.large m4.large m4.xlarge m4.2xlarge m4.4xlarge m4.10xlarge m3.medium m3.large m3.xlarge m3.2xlarge c4.large c4.xlarge c4.2xlarge c4.4xlarge c4.8xlarge c3.large c3.xlarge c3.2xlarge c3.4xlarge c3.8xlarge g2.2xlarge g2.8xlarge r3.large r3.xlarge r3.2xlarge r3.4xlarge r3.8xlarge i2.xlarge i2.2xlarge i2.4xlarge i2.8xlarge d2.xlarge d2.2xlarge d2.4xlarge d2.8xlarge)' \
+                  '--amazonec2-monitoring:Set this flag to enable CloudWatch monitoring:()' \
+        '--amazonec2-private-address-only:Only use a private IP address:()' \
+                      '--amazonec2-region:AWS region "us-east-1"                         [$AWS_DEFAULT_REGION]:(ap-northeast-1 ap-southeast-1 ap-southeast-2 cn-north-1 eu-central-1 eu-west-1 sa-east-1 us-east-1 us-west-1 us-west-2 us-gov-west-1)' \
+       '--amazonec2-request-spot-instance:Set this flag to request spot instance:()' \
+                   '--amazonec2-root-size:AWS root disk size (in GB) "16"                [$AWS_ROOT_SIZE]:(16 32 64 128 256 512)' \
+                  '--amazonec2-secret-key:AWS Secret Key                                 [$AWS_SECRET_ACCESS_KEY]:()' \
+              '--amazonec2-security-group:AWS VPC security group "docker-machine"        [$AWS_SECURITY_GROUP]:()' \
+               '--amazonec2-session-token:AWS Session Token                              [$AWS_SESSION_TOKEN]:()' \
+                  '--amazonec2-spot-price:AWS spot instance bid price (in dollar) "0.50":()' \
+                    '--amazonec2-ssh-user:Set the name of the ssh user "ubuntu"          [$AWS_SSH_USER]:(ubuntu core ec2-user)' \
+                   '--amazonec2-subnet-id:AWS VPC subnet id                              [$AWS_SUBNET_ID]:()' \
+                        '--amazonec2-tags:AWS Tags (e.g. key1,value1,key2,value2)        [$AWS_TAGS]:()' \
+  '--amazonec2-use-ebs-optimized-instance:Create an EBS optimized instance:()' \
+         '--amazonec2-use-private-address:Force the usage of private IP address:()' \
+                 '--amazonec2-volume-type:Amazon EBS volume type "gp2"                   [$AWS_VOLUME_TYPE]:(gp2 io1 standard)' \
+                      '--amazonec2-vpc-id:AWS VPC id                                     [$AWS_VPC_ID]:()' \
+                        '--amazonec2-zone:AWS zone for instance (i.e. a b c d e) "a"     [$AWS_ZONE]:(a b c d e)' \
+  \
+  '--azure-docker-port:Azure Docker port:()' \
+  '--azure-image:Azure image name. Default is Ubuntu 14.04 LTS x64:()' \
+  '--azure-location:Azure location:()' \
+  '--azure-password:Azure user password:()' \
+  '--azure-publish-settings-file:Azure publish settings file:()' \
+  '--azure-size:Azure size:()' \
+  '--azure-ssh-port:Azure SSH port:()' \
+  '--azure-subscription-cert:Azure subscription cert:()' \
+  '--azure-subscription-id:Azure subscription ID:()' \
+  '--azure-username:Azure username:()' \
+  \
+  '--digitalocean-access-token:Digital Ocean access token:()' \
+  '--digitalocean-backups:Enable backups for droplet:()' \
+  '--digitalocean-image:Digital Ocean Image:(centos-5-8-x64 coreos-beta coreos-stable debian-6-0-x64 debian-8-0-x64 fedora-21-x64 fedora-22-x64 fedora-23-x64 freebsd-10-1-x64 freebsd-10-2-x64 ubuntu-12-04-x64 ubuntu-14-04-x64 ubuntu-15-04-x64 ubuntu-15-10-x64)' \
+  '--digitalocean-ipv6:Enable ipv6 for droplet:()' \
+  '--digitalocean-private-networking:Enable private networking for droplet:()' \
+  '--digitalocean-region:Digital Ocean region:(ams1 ams2 ams3 lon1 nyc1 nyc2 nyc3 nyc3 sfo1 sgp1)' \
+  '--digitalocean-size:Digital Ocean size:(512mb 1gb 2gb 4gb 8gb 16gb 32gb 48gb 64gb)' \
+  '--digitalocean-ssh-port:SSH port:()' \
+  '--digitalocean-ssh-user:SSH username:()' \
+  '--digitalocean-userdata:Path to file with cloud-init user-data:()' \
+  \
+  '--google-disk-size:GCE Instance Disk Size (in GB):()' \
+  '--google-machine-type:GCE Machine Type:()' \
+  '--google-project:GCE Project:()' \
+  '--google-scopes:GCE Scopes (comma-separated if multiple scopes):()' \
+  '--google-username:GCE User Name:()' \
+  '--google-zone:GCE Zone:()' \
+  \
+  '--openstack-auth-url:OpenStack authentication URL:()' \
+  '--openstack-endpoint-type:OpenStack endpoint type (adminURL, internalURL or publicURL):()' \
+  '--openstack-flavor-id:OpenStack flavor id to use for the instance:()' \
+  '--openstack-flavor-name:OpenStack flavor name to use for the instance:()' \
+  '--openstack-floatingip-pool:OpenStack floating IP pool to get an IP from to assign to the instance:()' \
+  '--openstack-image-id:OpenStack image id to use for the instance:()' \
+  '--openstack-image-name:OpenStack image name to use for the instance:()' \
+  '--openstack-net-id:OpenStack network id the machine will be connected on:()' \
+  '--openstack-net-name:OpenStack network name the machine will be connected on:()' \
+  '--openstack-password:OpenStack password:()' \
+  '--openstack-region:OpenStack region name:()' \
+  '--openstack-sec-groups:OpenStack comma separated security groups for the machine:()' \
+  '--openstack-ssh-port:OpenStack SSH port:()' \
+  '--openstack-ssh-user:OpenStack SSH user:()' \
+  '--openstack-tenant-id:OpenStack tenant id:()' \
+  '--openstack-tenant-name:OpenStack tenant name:()' \
+  '--openstack-username:OpenStack username:()' \
+  \
+  '--rackspace-api-key:Rackspace API key:()' \
+  '--rackspace-docker-install:Set if docker have to be installed on the machine:()' \
+  '--rackspace-endpoint-type:Rackspace endpoint type (adminURL, internalURL or the default publicURL):()' \
+  '--rackspace-flavor-id:Rackspace flavor ID. Default\: General Purpose 1GB:()' \
+  '--rackspace-image-id:Rackspace image ID. Default\: Ubuntu 14.04 LTS (Trusty Tahr) (PVHVM):()' \
+  '--rackspace-region:Rackspace region name:()' \
+  '--rackspace-ssh-port:SSH port for the newly booted machine. Set to 22 by default:()' \
+  '--rackspace-ssh-user:SSH user for the newly booted machine. Set to root by default:()' \
+  '--rackspace-username:Rackspace account username:()' \
+  \
+  '--softlayer-api-endpoint:softlayer api endpoint to use:()' \
+  '--softlayer-api-key:softlayer user API key:()' \
+  "--softlayer-cpu:number of CPUs for the machine:()" \
+  '--softlayer-disk-size:Disk size for machine, a value of 0 uses the default size on softlayer:()' \
+  '--softlayer-domain:domain name for machine:()' \
+  '--softlayer-hostname:hostname for the machine:()' \
+  '--softlayer-hourly-billing:set hourly billing for machine - on by default:()' \
+  '--softlayer-image:OS image for machine:()' \
+  '--softlayer-local-disk:use machine local disk instead of softlayer SAN:()' \
+  '--softlayer-memory:Memory in MB for machine:()' \
+  '--softlayer-private-net-only:Use only private networking:()' \
+  '--softlayer-region:softlayer region for machine:()' \
+  '--softlayer-user:softlayer user account name:()' \
+  \
+  '--url:URL of host when no driver is selected:()' \
+  \
+  '--virtualbox-boot2docker-url:The URL of the boot2docker image. Defaults to the latest available version:()' \
+  '--virtualbox-disk-size:Size of disk for host in MB:()' \
+  '--virtualbox-memory:Size of memory for host in MB:(1024 2048 4096 8192 16384)' \
+  \
+  '--vmwarefusion-boot2docker-url:Fusion URL for boot2docker image:()' \
+  '--vmwarefusion-disk-size:Fusion size of disk for host VM (in MB):()' \
+  '--vmwarefusion-memory-size:Fusion size of memory for host VM (in MB):(1024 2048 4096 8192 16384)' \
+  \
+  '--vmwarevcloudair-catalog:vCloud Air Catalog (default is Public Catalog):()' \
+  '--vmwarevcloudair-catalogitem:vCloud Air Catalog Item (default is Ubuntu Precise):()' \
+  '--vmwarevcloudair-computeid:vCloud Air Compute ID (if using Dedicated Cloud):()' \
+  '--vmwarevcloudair-cpu-count:vCloud Air VM Cpu Count (default 1):()' \
+  '--vmwarevcloudair-docker-port:vCloud Air Docker port:()' \
+  '--vmwarevcloudair-edgegateway:vCloud Air Org Edge Gateway (Default is <vdcid>):()' \
+  '--vmwarevcloudair-memory-size:vCloud Air VM Memory Size in MB (default 2048):(1024 2048 4096 8192 16384)' \
+  '--vmwarevcloudair-orgvdcnetwork:vCloud Air Org VDC Network (Default is <vdcid>-default-routed):()' \
+  '--vmwarevcloudair-password:vCloud Air password:()' \
+  '--vmwarevcloudair-provision:vCloud Air Install Docker binaries (default is true):()' \
+  '--vmwarevcloudair-publicip:vCloud Air Org Public IP to use:()' \
+  '--vmwarevcloudair-ssh-port:vCloud Air SSH port:()' \
+  '--vmwarevcloudair-username:vCloud Air username:()' \
+  '--vmwarevcloudair-vdcid:vCloud Air VDC ID:()' \
+  \
+  '--vmwarevsphere-boot2docker-url:vSphere URL for boot2docker image:()' \
+  '--vmwarevsphere-compute-ip:vSphere compute host IP where the docker VM will be instantiated:()' \
+  '--vmwarevsphere-cpu-count:vSphere CPU number for docker VM:()' \
+  '--vmwarevsphere-datacenter:vSphere datacenter for docker VM:()' \
+  '--vmwarevsphere-datastore:vSphere datastore for docker VM:()' \
+  '--vmwarevsphere-disk-size:vSphere size of disk for docker VM (in MB):()' \
+  '--vmwarevsphere-memory-size:vSphere size of memory for docker VM (in MB):(1024 2048 4096 8192 16384)' \
+  '--vmwarevsphere-network:vSphere network where the docker VM will be attached:()' \
+  '--vmwarevsphere-password:vSphere password:()' \
+  '--vmwarevsphere-pool:vSphere resource pool for docker VM:()' \
+  '--vmwarevsphere-username:vSphere username:()' \
+  '--vmwarevsphere-vcenter:vSphere IP/hostname for vCenter:()' \
+  \
+  '--xhyve-boot-cmd:Command of booting kexec protocol:("loglevel=3 user=docker console=ttyS0 console=tty0 noembed nomodeset norestore waitusb=10 base host=boot2docker")' \
+  "--xhyve-boot2docker-url:The URL of the boot2docker image:_files" \
+  "--xhyve-cpu-count:Number of CPUs for xhyve VM:(1 2 3 4 5 6 7 8)" \
+  "--xhyve-disk-size[Size of disk for xhyve VM in MB]:Disk size (MB)" \
+  "--xhyve-experimental-nfs-share[Setup NFS shared folder (requires root)]" \
+  '--xhyve-memory-size:Size of memory for xhyve VM in MB:(1024 2048 4096 8192 16384)' \
+  \
+  '--engine-install-url:Custom URL to use for engine installation:(https\://get.docker.com https\://test.docker.com https\://experimental.docker.com)' \
+  '--engine-opt:Specify arbitrary flags to include with the created engine in the form flag=value:()' \
+  '--engine-insecure-registry:Specify insecure registries to allow with the created engine:()' \
+  '--engine-registry-mirror:Specify registry mirrors to use:()' \
+  '--engine-label:Specify labels for the created engine:()' \
+  '--engine-storage-driver:Specify a storage driver to use with the engine:()' \
+  '--engine-env:Specify environment variables to set in the engine:()' \
+  \
+  '--swarm:Configure Machine with Swarm:()' \
+  '--swarm-image:Specify Docker image to use for Swarm:()' \
+  '--swarm-master:Configure Machine to be a Swarm master:()' \
+  '--swarm-discovery:Discovery service to use with Swarm:()' \
+  '--swarm-strategy:Define a default scheduling strategy for Swarm:(spread binpack random)' \
+  '--swarm-opt:Define arbitrary flags for swarm:()' \
+  '--swarm-host:ip/socket to listen on for Swarm master:()' \
+  '--swarm-addr:addr to advertise for Swarm (default\: detect and use the machine IP):()' \
+  \
+  '--tls-san:Support extra SANs for TLS certs:()' \
+  \
+}
+
+__env() {
+  __machines
+  _arguments \
+    '--swarm[Display the Swarm config instead of the Docker daemon]' \
+    '--shell[environment to be configured for specified shell]' \
+    {--unset,-u}'[Unset variables instead of setting them]' \
+    '--no-proxy[Add machine IP to NO_PROXY environment variable]'
+}
+
+__inspect() {
+  __machines
+}
+
+__ip() {
+  __machines
+}
+
+__kill() {
+  __machines
+}
+
+__ls() {
+  _arguments \
+    {--quiet,-q}'[Enable quiet mode]' \
+    '--filter[Filter output based on conditions provided]'
+}
+
+__regenerate-certs() {
+  __machines
+  _arguments \
+    {--force,-f}'[Force rebuild and do not prompt]'
+}
+
+__restart() {
+  __machines
+}
+
+__rm() {
+  __machines
+  _arguments \
+    {--force,-f}'[Remove local configuration even if machine cannot be removed]' \
+    '-y[Assumes automatic yes to proceed with remove, without prompting further user confirmation]'
+}
+
+__ssh() {
+  __machines
+}
+
+__scp() {
+  __machines
+  _arguments \
+    {--recursive,-r}'[Copy files recursively (required to copy directories)]'
+}
+
+__start() {
+  __machines
+}
+
+__status() {
+  __machines
+}
+
+__stop() {
+  __machines
+}
+
+__upgrade() {
+  __machines
+}
+
+__url() {
+  __machines
+}
+
+__version() {
+}
+
+# common args
+_arguments \
+  '--debug[Enable debug mode]' \
+  '--storage-path[Configures storage path]:_files' \
+  '--tls-ca-cert[CA to verify remotes against]:_files' \
+  '--tls-ca-key[Private key to generate certificates]:_files' \
+  '--tls-client-cert[Client cert to use for TLS]:_files' \
+  '--tls-client-key[Private key used in client TLS auth]:_files' \
+  '--help[show help]' \
+  '--version[print the version]' \
+  '*:: :->command'
+
+# start machines!
+if (( CURRENT == 1 )); then
+  _describe -t commands 'docker-machine command' _docker_machine_cmds
+fi
+
+local -a _command_args
+case "$words[1]" in
+  active)
+    __active ;;
+  config)
+    __config ;;
+  create)
+    __create ;;
+  env)
+    __env ;;
+  inspect)
+    __inspect ;;
+  ip)
+    __ip ;;
+  kill)
+    __kill ;;
+  ls)
+    __ls ;;
+  regenerate-certs)
+    __regenerate-certs ;;
+  restart)
+    __restart ;;
+  rm)
+    __rm ;;
+  ssh)
+    __ssh ;;
+  scp)
+    __scp ;;
+  start)
+    __start ;;
+  status)
+    __status ;;
+  stop)
+    __stop ;;
+  upgrade)
+    __upgrade ;;
+  url)
+    __url ;;
+  version)
+    __version ;;
+  help)
+    __help ;;
+esac

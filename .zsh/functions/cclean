@@ -1,0 +1,16 @@
+#
+# set default cmake generator
+#
+
+CURRENT=$(readlink -f .)
+
+if [[ $CURRENT == *build* ]]; then
+  cd ../
+  rm -rf $CURRENT
+  mkdir -p $CURRENT
+  cd $CURRENT
+
+  unset CURRENT
+else
+  echo "error: Current directory name must be [build] keyword."
+fi

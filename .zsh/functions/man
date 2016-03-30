@@ -1,0 +1,52 @@
+# man command with dymamically loading $LESS_TERMCAP_*
+# Coloring:
+#  TrueColor printf(1) sytax
+#    - printf "\x1b[38;2;255;100;0mTRUECOLOR\x1b[0m\n"
+#    - printf "\x1b[38;2;55;1;100m\x1b[48;2;55;100;0mTRUECOLOR\x1b[0m\n"
+# export LESS_TERMCAP_mb=$(printf "\x1b[1;35m")
+# export LESS_TERMCAP_mb=$(printf '\x1b[01;31m') # red
+# export LESS_TERMCAP_md=$(printf '\x1b[01;35m') # bold, magenta
+# export LESS_TERMCAP_so=$(printf '\x1b[01;33m') # yellow
+# export LESS_TERMCAP_so=$(printf "\x1b[1;44;33m")
+# export LESS_TERMCAP_us=$(printf '\x1b[04;36m') # cyan
+
+# blue: 129;162;190
+# LESS_TERMCAP_mb # begin blinking
+# LESS_TERMCAP_md # begin bold
+# LESS_TERMCAP_me # end mode
+# LESS_TERMCAP_se # end standout-mode
+# LESS_TERMCAP_so # begin standout-mode
+# LESS_TERMCAP_ue # end underline
+# LESS_TERMCAP_us # blue: underline
+# LESS_TERMCAP_mr # turn on reverse
+# LESS_TERMCAP_mh # turn on half-bright
+# LESS_TERMCAP_ZN # begin subscript_mode
+# LESS_TERMCAP_ZV # end subscript mode
+# LESS_TERMCAP_ZO # begin superscript_mode
+# LESS_TERMCAP_ZW # end superscript mode
+
+# GROFF_NO_SGR=0:
+#   Disabel old drawing scheme for bold, underline (using the backspace character)
+#   Alos colors are enable. See man grotty(1)
+
+# blue: 129;162;190
+
+LESS_TERMCAP_mb=$(printf "\x1b[38;2;133;103;143m\x1b[6m") \
+LESS_TERMCAP_md=$(printf "\x1b[38;2;240;198;116m") \
+LESS_TERMCAP_me=$(printf "\x1b[0m") \
+LESS_TERMCAP_se=$(printf "\x1b[0m") \
+LESS_TERMCAP_so=$(printf "\x1b[38;2;240;198;116m\x1b[48;2;95;129;157m") \
+LESS_TERMCAP_ue=$(printf "\x1b[0m") \
+LESS_TERMCAP_us=$(printf "\x1b[38;2;178;148;187m\x1b[4m") \
+LESS_TERMCAP_mr=$(tput rev) \
+LESS_TERMCAP_mh=$(tput dim) \
+LESS_TERMCAP_ZN=$(tput ssubm) \
+LESS_TERMCAP_ZV=$(tput rsubm) \
+LESS_TERMCAP_ZO=$(tput ssupm) \
+LESS_TERMCAP_ZW=$(tput rsupm) \
+\
+GROFF_NO_SGR=0 \
+_NROFF_U=1 \
+PAGER="${commands[less]-R:-$PAGER}" \
+\
+command man "$@"

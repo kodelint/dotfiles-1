@@ -1,1 +1,15 @@
-/Users/zchee/src/github.com/zchee/zsh-completion-library/_cgrep
+#compdef cgrep
+
+# zsh completions for cgrep of google/codesearch
+local arguments
+
+arguments=(
+  '-c[only print a count of matching lines]'
+  '-h[suppress printing of filenames]'
+  '-i[case-insensitive]'
+  '-l[output matching files names only]'
+  '-n[prefix output with line numbers]'
+  '*:filename:_files'
+)
+
+_arguments -S -s $arguments

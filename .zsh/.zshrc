@@ -7,6 +7,32 @@ if [[ -n $ZSH_DEBUG ]]; then; echo 'Loading $HOME/.zshrc'; fi
 
 # }}}
 ####################################################################################################
+
+#
+# Load each modules
+#
+
+. "$HOME/.zsh/alias.zsh"
+. "$HOME/.zsh/completion.zsh"
+. "$HOME/.zsh/dirhash.zsh"
+. "$HOME/.zsh/function.zsh"
+. "$HOME/.zsh/history.zsh"
+. "$HOME/.zsh/key-bindings.zsh"
+. "$HOME/.zsh/prompt.zsh"
+. "$HOME/.zsh/zcompile.zsh"
+
+. "$ZSH_MODULE/brew.zsh"
+. "$ZSH_MODULE/docker.zsh"
+. "$ZSH_MODULE/git.zsh"
+. "$ZSH_MODULE/iab.zsh"
+. "$ZSH_MODULE/ls_abbrev.zsh"
+. "$ZSH_MODULE/peco.zsh"
+
+. "$ZSH_PLUGIN/zsh-users/zsh-completions/zsh-completions.plugin.zsh"
+. "$ZSH_PLUGIN/zsh-users/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+
+# }}}
+####################################################################################################
 #
 # Terminal settings
 #
@@ -24,6 +50,12 @@ stty speed 115200 > /dev/null
 autoload -Uz compinit compdef; compinit -i
 autoload -U +X bashcompinit && bashcompinit
 
+if [[ $(type -w run-help) == "run-help: alias" ]]; then
+  unalias run-help
+fi
+autoload run-help
+export HELPDIR=/usr/local/share/zsh/help
+
 # }}}
 ####################################################################################################
 #
@@ -32,15 +64,15 @@ autoload -U +X bashcompinit && bashcompinit
 
 # Set the Zsh modules to load (man zshmodules)
 # Load Zsh modules
-zstyle ':zrc:load' zmodule 'attr' 'stat' 'pcre' 'net/socket' 'db/gdbm' 'libzpython'
-zstyle -a ':zrc:load' zmodule 'zmodules'
+zstyle ':z:load' zmodule 'attr' 'stat' 'pcre' 'net/socket' 'db/gdbm' 'libzpython'
+zstyle -a ':z:load' zmodule 'zmodules'
 for zmodule ("$zmodules[@]") zmodload "zsh/${(z)zmodule}"
 unset zmodule{s,}
 
 # Set the Zsh functions to load (man zshcontrib)
 # Autoload Zsh functions
-zstyle ':zrc:load' zfunction 'zargs' 'zmv' 'mcd'
-zstyle -a ':zrc:load' zfunction 'zfunctions'
+zstyle ':z:load' zfunction 'mcd' 'make' 'n' 'date' 'cmake' 'cclean' 'cd' 'man' 'jman' 'findcomp'
+zstyle -a ':z:load' zfunction 'zfunctions'
 for zfunction ("$zfunctions[@]") autoload -Uz "$zfunction"
 unset zfunction{s,}
 
@@ -50,7 +82,7 @@ if [ "$TERM_PROGRAM" = "Apple_Terminal" ]; then
     setopt combiningchars
 fi
 
-REPORTTIME=20              # Output zsh command response
+REPORTTIME=3               # Output zsh command response
 unsetopt CORRECT           # Disable zsh correct
 setopt IGNOREEOF           # Disable '^D' logout keybind
 setopt MAGIC_EQUAL_SUBST   # Enable show prefix = in completions
@@ -77,7 +109,7 @@ unsetopt CLOBBER            # Do not overwrite existing files with > and >>.
 # Zsh history {{{
 #
 
-HISTFILE=~/.zhistory
+HISTFILE=~/.zsh_history
 HISTSIZE=500000000000            # Memory History size
 SAVEHIST=1000000000000           # Save History size
 setopt BANG_HIST                 # Treat the '!' character specially during expansion
@@ -95,7 +127,7 @@ setopt SHARE_HISTORY             # Share history between all sessions
 
 # Set highlighters
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor root)
-ZSH_HIGHLIGHT_STYLES[default]=none
+ZSH_HIGHLIGHT_STYLES[default]=fg=none
 ZSH_HIGHLIGHT_STYLES[unknown-token]=fg=red,bold
 ZSH_HIGHLIGHT_STYLES[reserved-word]=fg=green
 ZSH_HIGHLIGHT_STYLES[alias]=bg=blue
@@ -126,7 +158,7 @@ ZSH_HIGHLIGHT_STYLES[precommand]=bg=blue
 
 # Disable correction.
 alias ack='nocorrect ack'
-alias cd='nocorrect cd'
+# alias cd='nocorrect cd'
 alias cp='nocorrect cp'
 alias ebuild='nocorrect ebuild'
 alias gcc='nocorrect gcc'
@@ -168,8 +200,15 @@ alias type='type -a'
 alias which='which -a'
 
 
+
+
+
+# }}}
+####################################################################################################
 #
 # ls commands {{{
+#
+
 # Base ls command
 alias ls='ls --group-directories-first \
              --color=auto \
@@ -190,12 +229,14 @@ alias l.='ls -ld .[a-zA-Z]*'               # Lists dotfiles only
 
 alias sl='ls'                              # I often screw this up
 alias al='la'                              # misstype
+alias wh='which'
 
 # }}}
 ####################################################################################################
 #
 # grep commands {{{
 #
+
 export GREP_COLOR='37;45'           # BSD.
 export GREP_COLORS="mt=$GREP_COLOR" # GNU.
 
@@ -296,9 +337,20 @@ function psu {
 # Compdef {{{
 #
 
-autoload -Uz make n
 compdef n=nvim
+compdef jman=man
+
+# travis gem
+# [ -f /Users/zchee/.travis/travis.sh ] && source /Users/zchee/.travis/travis.sh
 
 # }}}
 ####################################################################################################
+
+# Cleanup local environ
+# unset ZSH_PLUGIN
+# unset ZSH_MODULE
+# unset DEVELOPER_DIR
+
+# }}}
+################################################################################
 if [[ -n $ZSH_DEBUG ]]; then; echo 'Finished $HOME/.zshrc'; fi
