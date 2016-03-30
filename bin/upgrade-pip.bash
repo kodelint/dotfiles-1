@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -e
 
 # parallel -j $(nproc) $1 'pip3 --no-cache-dir install --upgrade' git+https://github.com/{.}.git ::: \
 #   msgpack/msgpack-python \
@@ -25,11 +25,10 @@ pip3 --no-cache-dir install --upgrade \
   git+https://github.com/pycqa/astroid.git \
   \
   git+https://gitlab.com/pycqa/flake8.git \
-  git+http://github.com/openstack-dev/hacking.git \
-  git+https://github.com/Robpol86/flake8-pep257.git \
   git+https://github.com/public/flake8-import-order.git \
-  git+http://github.com/zheller/flake8-quotes.git \
-  git+http://github.com/yandex-sysmon/flake8-double-quotes.git \
+  git+https://github.com/Robpol86/flake8-pep257.git \
+  git+https://github.com/schlamar/flake8-todo.git \
+  git+http://github.com/openstack-dev/hacking.git \
   \
   git+https://github.com/flintwork/mccabe.git \
   git+https://github.com/rubik/radon.git \
