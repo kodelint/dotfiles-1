@@ -51,15 +51,20 @@ github.com/sromku/go-gitter \
 github.com/google/pprof \
 github.com/google/uuid \
 github.com/google/go-github \
-github.com/alecthomas/gometalinter
+github.com/alecthomas/gometalinter \
+github.com/svent/sift \
+github.com/monochromegane/the_platinum_searcher/... \
+github.com/google/logger \
+github.com/google/subcommands
 
 go get -d -t -ldflags "-w -s" -p 9 -u -v \
 github.com/tinylib/msgp \
-github.com/derekparker/delve
+github.com/derekparker/delve \
 github.com/google/syzkaller \
-github.com/google/logger \
-github.com/google/subcommands \
-
-# github.com/src-d/go-git/... \
+github.com/github/hub \
+github.com/src-d/go-git
 
 gometalinter --install --update
+
+cd $GOPATH/src/github.com/github/hub
+./script/build -o $GOPATH/bin/hub
