@@ -1,0 +1,199 @@
+#compdef pinata
+
+typeset -A opt_args
+
+_pinata() {
+  local -a commands key_cmd __hypervisor __hypervisor_arg __network
+  commands=(
+  "diagnose:diagnose errors and optionally upload to bugsnag"
+  "doctor:check your system for common problems"
+  "get:query a database key and print its value"
+  "list:list database keys and values"
+  "reset:reset all configuration to defaults"
+  "restart:do a clean restart of the active virtual machine"
+  "set:set database value and reload services with new configuration"
+  )
+
+  _arguments \
+    "1: :{_describe 'pinata command' commands}" \
+    '*:: :->args'
+
+  case $state in
+    args)
+      key_cmd=(
+      'hostname:Hostname of the virtual machine endpoint'
+      'daemon:JSON configuration of the local Docker daemon'
+      'hypervisor:hypervisor parameters settings'
+      'network:Controls how local containers can access the external network via the MacOS X host:(nat hostnet)'
+      'filesystem:Controls the mode by which files from the MacOS X host and the container filesystem'
+      )
+
+      __hypervisor=(
+      'native:set momery'
+      )
+
+      __hypervisor_arg=(
+      'memory:set momery'
+      'ncpu:set cpu'
+      )
+
+      __network=(
+      'nat:nat'
+      'hostnet:hostnet'
+      )
+
+      case $words[1] in
+        diagnose)
+          _arguments \
+            {-n --no}"[Always answer 'No' to interactive questions.]" \
+            {-u --upload}"[Upload a report to bugsnag.]"
+            ;;
+
+        doctor)
+          _arguments \
+            ;;
+
+        get)
+          _arguments \
+            "1: :{_describe 'set command' key_cmd}" \
+            ;;
+
+        list)
+          _arguments \
+            ;;
+
+        reset)
+          _arguments \
+            '*:gb environment:(GB_PROJECT_DIR GB_SRC_PATH GB_PKG_DIR GB_BIN_SUFFIX GB_GOROOT)'
+            ;;
+
+        restart)
+          _arguments \
+            '-f[alternate format for the list]:format' \
+            '-json[prints output in structured JSON format]' \
+            '-s[read format template from STDIN]' \
+            ;;
+
+        set)
+          _arguments \
+            "1: :{_describe 'set command' key_cmd}" \
+            '*:: :->args'
+
+          case $state in
+            args)
+              case $words[1] in
+                hostname)
+                  _files
+                  ;;
+                daemon)
+                  _files
+                  ;;
+                hypervisor)
+                  _arguments \
+                    "1: :{_describe 'hypervisor' __hypervisor}"
+                  ;;
+                network)
+                  __network
+                  ;;
+                filesystem)
+                  _arguments \
+                    '*:filesystem:(9p osxfs)'
+                  ;;
+                addr2line)
+                  _files
+                  ;;
+              esac
+              ;;
+          esac
+          ;;
+
+
+          # case $state in
+          # 'hostname:Hostname of the virtual machine endpoint'
+          # 'daemon:JSON configuration of the local Docker daemon'
+          # 'hypervisor:The Docker.app includes embedded hypervisors that run the virtual machines that power the containers'
+          # 'network:Controls how local containers can access the external network via the MacOS X host:(nat hostnet)'
+          # 'filesystem:Controls the mode by which files from the MacOS X host and the container filesystem'
+            # args)
+            #   case $words[1] in
+            #     hostname)
+            #       _files
+            #       ;;
+            #     daemon)
+            #       _files
+            #       ;;
+            #     hypervisor)
+            #       __hypervisor
+            #       ;;
+            #     network)
+            #       __network
+            #       ;;
+            #     filesystem)
+            #       _files
+            #       ;;
+            #   esac
+            #   ;;
+          # esac
+          # ;;
+        #
+        #         update)
+        #           _arguments \
+        #             '-all[update all dependencies in the manifest]' \
+        #             '-precaire[allow the use of insecure protocols.]' \
+        #             '*:importpaths:__gb_vendor_packages'
+        #           ;;
+        #
+        #         list)
+        #           _arguments \
+        #             '-f[controls the template used for printing each manifest entry]' \
+        #             '*:importpaths:__go_packages'
+        #           ;;
+        #
+        #         delete)
+        #           _arguments \
+        #             '-all[remove all dependencies]' \
+        #             '*:importpaths:__go_packages'
+        #           ;;
+        #
+        #         purge)
+        #           _arguments \
+        #             '*:importpaths:__go_packages'
+        #           ;;
+        #
+        #         restore)
+        #           _arguments \
+        #             '-precaire[allow the use of insecure protocols.]'
+        #           ;;
+        #
+        #         help)
+        #           local -a help_cmd
+        #           help_cmd=(
+        #           'fetch:fetch a remote dependency' \
+        #           'update:update a local dependency' \
+        #           'list:lists dependencies, one per line' \
+        #           'delete:deletes a local dependency' \
+        #           'purge:purges all unreferenced dependencies' \
+        #           'restore:restore dependencies from the manifest'
+        #           )
+        #           _arguments "1: :{_describe 'help command' help_cmd}"
+        #           ;;
+        #       esac
+        #       ;;
+        #   esac
+        #   ;;
+
+        # help)
+        #   local -a topics
+        #   topics=(
+        #   'plugin:plugin information' \
+        #   'project:gb project layout'
+        #   )
+        #
+          # _arguments "1: :{_describe 'command' commands -- topics}"
+          # ;;
+      esac
+      ;;
+  esac
+}
+
+_pinata
