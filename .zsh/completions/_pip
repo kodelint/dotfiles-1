@@ -133,11 +133,18 @@ common_ops=(
   \*{-v,--verbose}"[give more output]"
   {-V,--version}"[show version and exit]"
   {-q,--quiet}"[give less output]"
-  "--log=[log file where a complete record will be kept]:file"
+  "--cache-dir=[Store the cache data in <dir>]:dir:_directories"
+  "--cert=[path to alternate CA bundle]:path:_files"
+  "--client-cert=[Path to SSL client certificate]:path:_files"
+  "--disable-pip-version-check[Dont check a new version]"
+  "--exists-action[Default action when a path already exists]:action:(switch ignore wipe backup)"
+  "--isolated[Run pip in an isolated mode]"
+  "--log=[log file where a complete record will be kept]:file:_files"
+  "--no-cache-dir[Disable the cache]"
   "--proxy=[specify a proxy in the form user:passwd@proxy.server:port]:proxy"
-  "--timeout=[set the socket timeout (default 15 seconds)]:second"
-  "--exists-action=[default action when a path already exists: (s)witch, (i)gnore, (w)ipe, (b)ackup]:action"
-  "--cert=[path to alternate CA bundle]:path"
+  "--retries=[Maximum number of retries each connection should attempt (default 5 times)]:retry count:(1 2 3 4 5 6 7 8 9)"
+  "--timeout=[set the socket timeout (default 15 seconds)]:second:(1 2 3 4 5 6 7 8 9)"
+  "--trusted-host[Mark this host as trusted, even though it does not have valid or any HTTPS]:hostname:_urls"
 )
 
 _requirements_file () {
@@ -167,10 +174,6 @@ case $state in
       "search:search PyPI for packages"
       "wheel:build wheels from your requirements"
       "help:show available commands"
-
-      "zip:zip dividual packages"
-      "unzip:unzip undividual packages"
-      "bundle:create pybundle"
     )
 
     _describe -t subcommands 'pip subcommand' subcommands && ret=0
