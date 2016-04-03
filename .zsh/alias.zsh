@@ -4,18 +4,26 @@
 # config file alias
 alias nv="${EDITOR} ${HOME}/.config/nvim/init.vim"
 alias nvr="nvim -c 'call dein#clear_state() | call dein#clear_cache()' -c 'UpdateRemotePlugins' -c 'q' >/dev/null; cat ${HOME}/.nvim/.init.vim-rplugin\~"
-alias nud="nvim -c 'call dein#update()' -c 'qall!'; cat ${HOME}/.nvim/.init.vim-rplugin\~"
+alias nvd="nvim -c 'call dein#update()' -c 'qall!'; cat ${HOME}/.nvim/.init.vim-rplugin\~"
 alias tm="${EDITOR} ${HOME}/.tmux.conf"
-alias irrc="${EDITOR} ${HOME}/.irssi/config"
 
+# Languages
 # Go
-alias b='gb'
+# alias b='gb'
 
 # Python
 alias py='python3'
 alias py2='python2'
 alias py3='python3'
-alias pi='pip3'
+if [[ $(which pip2) == "/opt/intel/intelpython27/bin/pip2" ]]; then
+  alias pip='pip --disable-pip-version-check'
+fi
+if [[ $(which pip3) == "/opt/intel/intelpython35/bin/pip3" ]]; then
+  alias pip='pip3'
+  alias pip3='pip3 --disable-pip-version-check'
+else
+  alias pip='pip2' # lock python2
+fi
 
 # Build
 alias nj="ninja"
@@ -58,26 +66,8 @@ alias ipython='ipython --matplotlib=auto'
 alias htop='sudo htop'
 alias pbc='| tr -d "\n" | pbcopy'
 
-# Languages
-alias pip='pip2' # lock python2
-
 # Clipboard
 alias path='echo -n `pwd` | pbcopy'
 
 # Utility
-      csum() { curl -L --silent $1 | shasum -a 256 | awk '{print $1}' }
-
-# man() {
-# env \
-#     LESS_TERMCAP_mb=$(printf "\e[1;31m") \
-#     LESS_TERMCAP_md=$(printf "\e[1;31m") \
-#     LESS_TERMCAP_me=$(printf "\e[0m") \
-#     LESS_TERMCAP_se=$(printf "\e[0m") \
-#     LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
-#     LESS_TERMCAP_ue=$(printf "\e[0m") \
-#     LESS_TERMCAP_us=$(printf "\e[1;32m") \
-#     PAGER="${commands[less]-R:-$PAGER}" \
-#     _NROFF_U=1 \
-#     PATH="$HOME/bin:$PATH" \
-#     man "$@"
-# }
+sumcheck() { curl -L --silent $1 | shasum -a 256 | awk '{print $1}' }
