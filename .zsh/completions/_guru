@@ -1,4 +1,4 @@
-#compdef oracle
+#compdef guru
 
 _oracle() {
 __go_packages() {
@@ -32,4 +32,4 @@ esac
 }
 
 
-compdef _oracle() oracle
+compdef _guru() guru
