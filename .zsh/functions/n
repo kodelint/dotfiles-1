@@ -2,27 +2,36 @@
 # neovim context aware function
 #
 
+if [[ "$NVIM_EXEC" ]]; then
+  NVIM_CMD=$NVIM_EXEC
+else
+  NVIM_CMD='nvim -p'
+fi
+
 if [[ "$1" ]]; then
-    case "$1" in
-        go)
-          nvim -p **/*.go $2
-          ;;
-        c)
-          nvim **/*.c $2
-          ;;
-        cpp)
-          nvim **/*.cpp $2
-          ;;
-        py)
-          nvim **/*.py $2
-          ;;
-        js)
-          nvim **/*.js $2
-          ;;
-        *)
-          nvim -O $@
-          ;;
-    esac
-  else
-    nvim "."
+  case "$1" in
+    c)
+      eval "$NVIM_CMD **/*.c $2"
+      ;;
+    c++)
+      eval "$NVIM_CMD **/*.cpp $2"
+      ;;
+    swift)
+      eval "$NVIM_CMD **/*.cpp $2"
+      ;;
+    go)
+      eval "$NVIM_CMD **/*.go $2"
+      ;;
+    py)
+      eval "$NVIM_CMD **/*.py $2"
+      ;;
+    js)
+      eval "$NVIM_CMD **/*.js $2"
+      ;;
+    *)
+      eval "$NVIM_CMD $@"
+      ;;
+  esac
+else
+  eval "$NVIM_CMD ."
 fi
