@@ -1,0 +1,11 @@
+#
+# Quick edit for Neovim init.vim
+#
+
+if [[ "$NVIM_EXEC" ]]; then
+  NVIM_CMD=$NVIM_EXEC
+else
+  NVIM_CMD=nvim
+fi
+
+eval "$NVIM_CMD ${HOME}/.config/nvim/init.vim"
