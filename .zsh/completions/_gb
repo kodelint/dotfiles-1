@@ -24,24 +24,8 @@ _gb() {
     args)
       __build_flags_packags() {
         _arguments \
-          '-a[force rebuilding of packages that are already up-to-date]' \
-          '-n[print the commands but do not run them]' \
-          '-p[number of builds that can be run in parallel]:number' \
-          '-race[enable data race detection]' \
-          '-v[print the names of packages as they are compiled]' \
-          '-work[print temporary work directory and keep it]' \
-          '-x[print the commands]' \
-          '-asmflags[arguments for each go tool asm invocation]:flags' \
-          '-buildmode[build mode to use]:mode' \
-          '-compiler[name of compiler to use]:name' \
-          '-gccgoflags[arguments for gccgo]:args' \
           '-gcflags[arguments to pass on each go tool compile invocation]: :->gcflags' \
-          '-installsuffix[suffix to add to package directory]:suffix' \
           '-ldflags[arguments to pass on each go tool link invocation]: :->ldflags' \
-          '-linkshared[link against shared libraries]' \
-          '-pkgdir[install and load all packages from dir]:dir' \
-          '-tags[list of build tags to consider satisfied]:tags' \
-          '-toolexec[program to use to invoke toolchain programs]:args'
 
         case $state in
           gcflags)
@@ -425,13 +409,13 @@ _gb() {
                 list)
                   _arguments \
                     '-f[controls the template used for printing each manifest entry]' \
-                    '*:importpaths:__go_packages'
+                    '*:importpaths:__gb_vendor_packages'
                   ;;
 
                 delete)
                   _arguments \
                     '-all[remove all dependencies]' \
-                    '*:importpaths:__go_packages'
+                    '*:importpaths:__gb_vendor_packages'
                   ;;
 
                 purge)
