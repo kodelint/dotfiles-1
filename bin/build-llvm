@@ -41,8 +41,8 @@ else
 fi
 
 # define Python Frameworks path
-PYTHON_PREFIX=$(python"$3"-config --prefix)
-PYTHON_SELECT_VERSION=$(python"$3"-config --prefix | awk -F / '{print $NF}')
+PYTHON_PREFIX=$(/usr/local/bin/python"$3"-config --prefix)
+PYTHON_SELECT_VERSION=$(/usr/local/bin/python"$3"-config --prefix | awk -F / '{print $NF}')
 
 PYTHON_EXECUTABLE=$(which python"$3")
 PYTHON_INCLUDE_DIR=$PYTHON_PREFIX/include/python$PYTHON_SELECT_VERSION
