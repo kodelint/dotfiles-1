@@ -1,9 +1,0 @@
-#compdef _gb_vendor_list
-# zsh completions for '_gb_vendor_list'
-# automatically generated with http://github.com/RobSis/zsh-completion-generator
-local arguments
-arguments=(
-    '-f[controls the template used for printing each manifest entry. If not supplied]'
-    '*:filename:_files'
-)
-_arguments -s $arguments

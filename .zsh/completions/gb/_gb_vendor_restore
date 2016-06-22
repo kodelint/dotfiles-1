@@ -1,9 +1,0 @@
-#compdef _gb_vendor_restore
-# zsh completions for '_gb_vendor_restore'
-# automatically generated with http://github.com/RobSis/zsh-completion-generator
-local arguments
-arguments=(
-    '-precaire[allow the use of insecure protocols.]'
-    '*:filename:_files'
-)
-_arguments -s $arguments
