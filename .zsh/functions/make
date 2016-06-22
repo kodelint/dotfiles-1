@@ -1,8 +1,0 @@
-#
-# Highlights make output.
-#
-if (( $+commands[colormake] )); then
-    colormake "$@"
-else
-    command make "$@"
-fi

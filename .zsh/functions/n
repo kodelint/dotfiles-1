@@ -2,11 +2,11 @@
 # neovim context aware function
 #
 
-if [[ "$NVIM_EXEC" ]]; then
-  NVIM_CMD=$NVIM_EXEC
-else
+# if [[ "$NVIM_EXEC" ]]; then
+#   NVIM_CMD=$NVIM_EXEC
+# else
   NVIM_CMD='nvim -p'
-fi
+# fi
 
 if [[ "$1" ]]; then
   case "$1" in

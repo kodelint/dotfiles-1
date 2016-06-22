@@ -1,0 +1,3 @@
+# shasum256 check with cURL
+
+sumcheck() { curl -L --silent $1 | shasum -a 256 | awk '{print $1}' }

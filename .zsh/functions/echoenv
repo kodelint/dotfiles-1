@@ -1,0 +1,3 @@
+# echoenv splits environment  by ListSeparator ':' and print in the list
+
+echo "$@" | awk -F: 'BEGIN{OFS="\n"}{$1=$1;print}'
