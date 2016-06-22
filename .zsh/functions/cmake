@@ -1,8 +1,0 @@
-#
-# set default cmake generator
-#
-if ! [[ "$1" ]]; then
-	command cmake -G Ninja "$@"
-else
-	command cmake "$@"
-fi
