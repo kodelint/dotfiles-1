@@ -1,85 +1,70 @@
 #
-# zshrc {{{
+# .zshrc {{{
 # Executes commands at the start of an interactive session.
 #
 
 if [[ -n $ZSH_DEBUG ]]; then; echo 'Loading $HOME/.zshrc'; fi
 
 # }}}
-####################################################################################################
+###################################################################################################
 
-#
-# Load each modules
-#
+# Load local modules
 
-. "$HOME/.zsh/alias.zsh"
-. "$HOME/.zsh/completion.zsh"
-. "$HOME/.zsh/dirhash.zsh"
-. "$HOME/.zsh/function.zsh"
-. "$HOME/.zsh/history.zsh"
-. "$HOME/.zsh/key-bindings.zsh"
-. "$HOME/.zsh/prompt.zsh"
-. "$HOME/.zsh/zcompile.zsh"
+source "$HOME/.zsh/alias.zsh"
+source "$HOME/.zsh/completion.zsh"
+source "$HOME/.zsh/dirhash.zsh"
+source "$HOME/.zsh/function.zsh"
+source "$HOME/.zsh/history.zsh"
+source "$HOME/.zsh/key-bindings.zsh"
+source "$HOME/.zsh/prompt.zsh"
+source "$HOME/.zsh/zcompile.zsh"
 
-. "$ZSH_MODULE/brew.zsh"
-. "$ZSH_MODULE/docker.zsh"
-. "$ZSH_MODULE/git.zsh"
-. "$ZSH_MODULE/iab.zsh"
-. "$ZSH_MODULE/ls_abbrev.zsh"
-. "$ZSH_MODULE/peco.zsh"
+source "$ZSH_MODULE/brew.zsh"
+source "$ZSH_MODULE/docker.zsh"
+source "$ZSH_MODULE/git.zsh"
+source "$ZSH_MODULE/iab.zsh"
+source "$ZSH_MODULE/ls_abbrev.zsh"
+source "$ZSH_MODULE/peco.zsh"
 
-. "$ZSH_PLUGIN/zsh-users/zsh-completions/zsh-completions.plugin.zsh"
-. "$ZSH_PLUGIN/zsh-users/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+source "$ZSH_PLUGIN/zsh-users/zsh-completions/zsh-completions.plugin.zsh"
+source "$ZSH_PLUGIN/zsh-users/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+source "$HOME/go/src/github.com/suzaku/shonenjump/scripts/shonenjump.zsh"
 
 # }}}
-####################################################################################################
-#
+###################################################################################################
+
 # Terminal settings
-#
 
 stty -ixon
 stty -iutf8
 stty speed 115200 > /dev/null
 
 # }}}
-####################################################################################################
-#
-# compinit & bashcompinit
-#
+###################################################################################################
 
-autoload -Uz compinit compdef; compinit -i
-autoload -U +X bashcompinit && bashcompinit
-
-if [[ $(type -w run-help) == "run-help: alias" ]]; then
-  unalias run-help
-fi
-autoload run-help
-export HELPDIR=/usr/local/share/zsh/help
-
-# }}}
-####################################################################################################
-#
 # Zsh Global {{{
-#
 
 # Set the Zsh modules to load (man zshmodules)
 # Load Zsh modules
-zstyle ':z:load' zmodule 'attr' 'stat' 'pcre' 'net/socket' 'db/gdbm' 'libzpython'
+zstyle ':z:load' zmodule 'zsh/attr' 'zsh/stat' 'zsh/pcre' 'zsh/net/socket' 'zsh/db/gdbm'
 zstyle -a ':z:load' zmodule 'zmodules'
-for zmodule ("$zmodules[@]") zmodload "zsh/${(z)zmodule}"
+for zmodule ("$zmodules[@]") zmodload "${(z)zmodule}"
 unset zmodule{s,}
 
 # Set the Zsh functions to load (man zshcontrib)
 # Autoload Zsh functions
-zstyle ':z:load' zfunction 'mcd' 'make' 'n' 'date' 'cmake' 'cclean' 'cd' 'man' 'jman' 'findcomp'
+zstyle ':z:load' zfunction 'mcd' 'make' 'n' 'nv' 'date' 'cclean' 'cd' 'man' 'jman' 'findcomp' 'shasumcheck' 'unsetm' 'mangrep' 'echoenv'
 zstyle -a ':z:load' zfunction 'zfunctions'
 for zfunction ("$zfunctions[@]") autoload -Uz "$zfunction"
 unset zfunction{s,}
 
+sumcheck() { curl -L --silent $1 | shasum -a 256 | awk '{print $1}' }
+unsetm() {for e in $(env | grep -E "^$1" | awk -F = '{print $1}'); do unset $e; done}
+
 # Import Apple default /etc/zshrc
 # Correctly display UTF-8 with combining characters.
 if [ "$TERM_PROGRAM" = "Apple_Terminal" ]; then
-    setopt combiningchars
+  setopt combiningchars
 fi
 
 REPORTTIME=3               # Output zsh command response
@@ -104,7 +89,7 @@ setopt EXTENDED_GLOB        # Use extended globbing syntax.
 unsetopt CLOBBER            # Do not overwrite existing files with > and >>.
                             # Use >! and >>! to bypass.
 # }}}
-####################################################################################################
+###################################################################################################
 #
 # Zsh history {{{
 #
@@ -151,206 +136,94 @@ ZSH_HIGHLIGHT_STYLES[precommand]=bg=blue
 
 
 # }}}
-####################################################################################################
+###################################################################################################
+
+# Setup languages environment
+
+# https://github.com/uu59/dotfiles/commit/d75703d89abfc9186453d692c538fc4180c124fc#diff-ae10adf7d754267f81b8c2d70835a5eeR41
+# rbenv
+# if [ $+commands[rbenv] -ne 0 ]; then
+#   rbenv_init(){
+#     export PATH="/usr/local/var/rbenv/shims:${PATH}"
+#     export RBENV_SHELL=zsh
+#     source '/usr/local/Cellar/rbenv/1.0.0/libexec/../completions/rbenv.zsh'
+#     rbenv() {
+#       local command
+#       command="$1"
+#       if [ "$#" -gt 0 ]; then
+#         shift
+#       fi
 #
-# Alias {{{
+#       case "$command" in
+#         rehash|shell)
+#           eval "$(rbenv "sh-$command" "$@")";;
+#         *)
+#           command rbenv "$command" "$@";;
+#       esac
+#     }
+#   }
+#   rbenv_init
+#   unfunction rbenv_init
+# fi
 #
-
-# Disable correction.
-alias ack='nocorrect ack'
-# alias cd='nocorrect cd'
-alias cp='nocorrect cp'
-alias ebuild='nocorrect ebuild'
-alias gcc='nocorrect gcc'
-alias gist='nocorrect gist'
-alias grep='nocorrect grep'
-alias heroku='nocorrect heroku'
-alias ln='nocorrect ln'
-alias man='nocorrect man'
-alias mkdir='nocorrect mkdir'
-alias mv='nocorrect mv'
-alias mysql='nocorrect mysql'
-alias rm='nocorrect rm'
-
-# Disable globbing.
-alias bower='noglob bower'
-alias fc='noglob fc'
-alias find='noglob find'
-alias ftp='noglob ftp'
-alias history='noglob history'
-alias locate='noglob locate'
-alias rake='noglob rake'
-alias rsync='noglob rsync'
-alias scp='noglob scp'
-alias sftp='noglob sftp'
-
-# Define general aliases.
-alias _='sudo'
-# alias b='${(z)BROWSER}'
-alias cp="${aliases[cp]:-cp} -i"
-# alias e='${(z)VISUAL:-${(z)EDITOR}}'
-alias ln="${aliases[ln]:-ln} -i"
-alias mkdir="${aliases[mkdir]:-mkdir} -p"
-alias mv="${aliases[mv]:-mv} -i"
-alias p='${(z)PAGER}'
-alias po='popd'
-alias pu='pushd'
-alias rm="${aliases[rm]:-rm} -i"
-alias type='type -a'
-alias which='which -a'
-
-
-
-
+# if (( $+commands[pyenv] )); then
+#   pyenv_init(){
+#     export PATH="/Users/zchee/.pyenv/shims:${PATH}"
+#     export PYENV_SHELL=zsh
+#     source "${HOME}/.pyenv/completions/pyenv.zsh"
+#     # command pyenv rehash 2>/dev/null
+#     pyenv() {
+#       local command
+#       command="$1"
+#       if [ "$#" -gt 0 ]; then
+#         shift
+#       fi
+#
+#       case "$command" in
+#         activate|deactivate|rehash|shell)
+#           eval "$(pyenv "sh-$command" "$@")";;
+#         *)
+#           command pyenv "$command" "$@";;
+#       esac
+#     }
+#     export PATH="/Users/zchee/.pyenv/plugins/pyenv-virtualenv/shims:${PATH}";
+#     export PYENV_VIRTUALENV_INIT=1;
+#     _pyenv_virtualenv_hook() {
+#       local ret=$?
+#       if [ -n "$VIRTUAL_ENV" ]; then
+#         eval "$(pyenv sh-activate --quiet || pyenv sh-deactivate --quiet || true)" || true
+#       else
+#         eval "$(pyenv sh-activate --quiet || true)" || true
+#       fi
+#       return $ret
+#     };
+#     typeset -g -a precmd_functions
+#     if [[ -z $precmd_functions[(r)_pyenv_virtualenv_hook] ]]; then
+#       precmd_functions=(_pyenv_virtualenv_hook $precmd_functions);
+#     fi
+#   }
+#   pyenv_init
+#   unfunction pyenv_init
+# fi
 
 # }}}
-####################################################################################################
-#
-# ls commands {{{
-#
+###################################################################################################
 
-# Base ls command
-alias ls='ls --group-directories-first \
-             --color=auto \
-             --ignore=.DS_Store \
-             --ignore=.ycm_extra_conf.pyc'
-
-alias  l='ls -AF'                          # Lists hidden files, indicator
-alias ll='ls -lhF'                         # Lists human readable sizes, show indicator
-alias lr='ll -R'                           # Lists human readable sizes, recursively
-alias la='ll -A'                           # Lists human readable sizes, hidden files and inode
-alias lm='la | "$PAGER"'                   # Lists human readable sizes, hidden files through pager
-alias lx='ll -XB'                          # Lists sorted by extension (GNU only)
-alias lk='ll -Sr'                          # Lists sorted by size, largest last
-alias lt='ll -tr'                          # Lists sorted by date, most recent last
-alias lc='lt -c'                           # Lists sorted by date, most recent last, shows change time
-alias lu='lt -u'                           # Lists sorted by date, most recent last, shows access time
-alias l.='ls -ld .[a-zA-Z]*'               # Lists dotfiles only
-
-alias sl='ls'                              # I often screw this up
-alias al='la'                              # misstype
-alias wh='which'
-
-# }}}
-####################################################################################################
-#
-# grep commands {{{
-#
-
-export GREP_COLOR='37;45'           # BSD.
-export GREP_COLORS="mt=$GREP_COLOR" # GNU.
-
-alias grep="${aliases[grep]:-grep} --color=auto"
-
-# }}}
-####################################################################################################
-
-#
-# copy and paste commands {{{
-#
-
-# Mac OS X Everywhere
-if [[ "$OSTYPE" == darwin* ]]; then
-  alias o='open'
-  # alias pbcopy='pbcopy'
-  # alias pbcopy='tr -d '\n' | tee > /dev/clipboard'
-elif [[ "$OSTYPE" == cygwin* ]]; then
-  alias o='cygstart'
-  alias pbcopy='tee > /dev/clipboard'
-  alias pbpaste='cat /dev/clipboard'
-else
-  alias o='xdg-open'
-
-  if (( $+commands[xclip] )); then
-    alias pbcopy='xclip -selection clipboard -in'
-    alias pbpaste='xclip -selection clipboard -out'
-  elif (( $+commands[xsel] )); then
-    alias pbcopy='xsel --clipboard --input'
-    alias pbpaste='xsel --clipboard --output'
-  fi
+# Online zsh help?
+if [[ $(type -w run-help) == "run-help: alias" ]]; then
+  unalias run-help
 fi
-
-alias pbc='pbcopy'
-alias pbp='pbpaste'
-
-
-# Resource Usage
-alias df='df -kh'
-alias du='du -kh'
-
-if (( $+commands[htop] )); then
-  alias top=htop
-else
-  if [[ "$OSTYPE" == (darwin*|*bsd*) ]]; then
-    alias topc='top -o cpu'
-    alias topm='top -o vsize'
-  else
-    alias topc='top -o %CPU'
-    alias topm='top -o %MEM'
-  fi
-fi
+autoload run-help
+export HELPDIR=/usr/local/share/zsh/help
 
 # }}}
-####################################################################################################
-#
-# Functions {{{
-#
-
-# Makes a directory and changes to it.
-function mcd {
-  [[ -n "$1" ]] && mkdir -p "$1" && builtin cd "$1"
-}
-
-# Changes to a directory and lists its contents.
-function cdls {
-  builtin cd "$argv[-1]" && ls "${(@)argv[1,-2]}"
-}
-
-# Pushes an entry onto the directory stack and lists its contents.
-function pushdls {
-  builtin pushd "$argv[-1]" && ls "${(@)argv[1,-2]}"
-}
-
-# Pops an entry off the directory stack and lists its contents.
-function popdls {
-  builtin popd "$argv[-1]" && ls "${(@)argv[1,-2]}"
-}
-
-# Prints columns 1 2 3 ... n.
-function slit {
-  awk "{ print ${(j:,:):-\$${^@}} }"
-}
-
-# Finds files and executes a command on them.
-function find-exec {
-  find . -type f -iname "*${1:-}*" -exec "${2:-file}" '{}' \;
-}
-
-# Displays user owned processes status.
-function psu {
-  ps -U "${1:-$LOGNAME}" -o 'pid,%cpu,%mem,command' "${(@)argv[2,-1]}"
-}
-
-# }}}
-####################################################################################################
-#
-# Compdef {{{
-#
-
-compdef n=nvim
-compdef jman=man
-
-# travis gem
-# [ -f /Users/zchee/.travis/travis.sh ] && source /Users/zchee/.travis/travis.sh
-
-# }}}
-####################################################################################################
-
-# Cleanup local environ
-# unset ZSH_PLUGIN
-# unset ZSH_MODULE
-# unset DEVELOPER_DIR
-
-# }}}
-################################################################################
+###################################################################################################
 if [[ -n $ZSH_DEBUG ]]; then; echo 'Finished $HOME/.zshrc'; fi
+# The following lines were added by compinstall
+
+zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
+zstyle :compinstall filename '/Users/zchee/.zshrc'
+
+autoload -Uz compinit
+compinit
+# End of lines added by compinstall
