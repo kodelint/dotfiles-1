@@ -1,21 +1,8 @@
-: ! "${PROMPT?exit 0}"
-# https://neovim.io/doc/user/tips.html#speed-up
-# http://stackoverflow.com/a/307735/5228839
-#
 # zshenv {{{
 # Defines environment variables
-#
-# }}}
-################################################################################
-#
-# DEBUG {{{
-#
-
 # export ZSH_DEBUG=1
-if [[ -n $ZSH_DEBUG ]]; then; echo 'Loading zshenv'; fi
-
-# }}}
-################################################################################
+[[ -n $ZSH_DEBUG ]] && echo 'Loading zshenv'
+# -----------------------------------------------------------------------------
 #
 # References {{{
 #
@@ -42,126 +29,46 @@ if [[ -n $ZSH_DEBUG ]]; then; echo 'Loading zshenv'; fi
 #   - http://unix.stackexchange.com/questions/108699/documentation-on-less-termcap-variables/108840#108840
 #
 # }}}
-################################################################################
-#
-# Set enviroment caching
-#   - unset in bottom of the .zshrc
+# -----------------------------------------------------------------------------
+# compinit
+autoload -Uz compinit zrecompile; compinit
 
+# Environment caching
+#   - unset in bottom of the .zshrc
 # TODO: needs 'local'?
-export DEVELOPER_DIR="$(xcode-select -p)"
-export ZSH_PLUGIN=$HOME/.zsh/plugins
-export ZSH_MODULE=$HOME/.zsh/modules
+
+if [[ -d "/Applications/Xcode-beta.app/Contents/Developer" ]]; then
+export DEVELOPER_DIR="/Applications/Xcode-beta.app/Contents/Developer"
+elif [[ -d "/Applications/Xcode.app/Contents/Developer" ]]; then
+  export DEVELOPER_DIR="/Applications/Xcode-beta.app/Contents/Developer"
+fi
+# export DEVELOPER_DIR="$(xcode-select -p)"
+ZSH_PLUGIN=$HOME/.zsh/plugins
+ZSH_MODULE=$HOME/.zsh/modules
+DOTFILES=$HOME/src/github.com/zchee/dotfiles
 
 # }}}
-################################################################################
-#
-# Low-level system configurations {{{
-#
+# -----------------------------------------------------------------------------
+# System {{{
 
 command ulimit -n 10000
 export ZSH_COLORS=1
 
 # }}}
-################################################################################
-#
+# -----------------------------------------------------------------------------
 # Path {{{
-#
 
 # Loading automatically settings XDG Base Directories
-export XDG_RUNTIME_DIR="/run/user/zchee"
+export XDG_RUNTIME_DIR="/run/user/501"
 . $HOME/.zsh/plugins/o-pikozh/xdg-basedirs/xdg-basedirs
 . $HOME/.zsh/plugins/o-pikozh/xdg-basedirs/xdg-runtime-dir
 # Unofficial XDG environment variable
-export XDG_LOG_HOME="${HOME}/.log"
-
-
-# typeset to (lower|upper)case environment variable
-[ -z "$ld_library_path" ] && typeset -xT LD_LIBRARY_PATH ld_library_path
-[ -z "$include" ] && typeset -xT INCLUDE include
-typeset -U path cdpath fpath manpath ld_library_path include
-
-path=(
-  ${HOME}/bin(N-/)
-  /usr/local/go/bin(N-/)
-  ${GOPATH}/bin(N-/)
-  /usr/local/cuda/bin(N-/)
-  /opt/newosxbook/bin(N-/)
-  /opt/coreutils/bin(N-/)
-  /opt/binutils/bin(N-/)
-  /Applications/CMake.app/Contents/bin(N-/)
-  /usr/local/{bin,sbin}
-  /usr/{bin,sbin}
-  ${DEVELOPER_DIR}/Toolchains/XcodeDefault.xctoolchain/usr/bin(N-/)
-  /opt/llvm/bin(N-/)
-  /opt/cern/root/bin(N-/)
-  /opt/cern/cling/bin(N-/)
-  ${DEVELOPER_DIR}/usr/bin(N-/)
-  /{bin,sbin}
-  ${RBENV_ROOT}/shims(N-/)
-  ${NODEBREW_ROOT}/current/bin(N-/)
-  ${HOME}/.nimble/bin(N-/)
-  ${HOME}/google-cloud-sdk/bin(N-/)
-  /usr/local/opt/afdko/Tools/osx(N-/)
-  /opt/apple/llbuild/bin(N-/)
-  /opt/apple/lldb/bin(N-/)
-  /opt/apple/llvm/bin(N-/)
-  /opt/apple/swift/bin(N-/)
-  $path
-)
-
-fpath=(
-  ${HOME}/.zsh/functions(N-/)
-  ${HOME}/.zsh/completions(N-/)
-  ${ZSH_PLUGIN}/zsh-users/zsh-completions/src(N-/)
-  ${ZSH_PLUGIN}/zsh-users/zsh-syntax-highlighting(N-/)
-  $fpath
-)
-
-manpath=(
-  /opt/cern/root/man(N-/)
-  /opt/llvm/share/man(N-/)
-  /usr/local/share/man(N-/)
-  ${DEVELOPER_DIR}/Toolchains/XcodeDefault.xctoolchain/usr/man(N-/)
-  ${DEVELOPER_DIR}/usr/share/man(N-/)
-  /usr/share/man(N-/)
-  /opt/coreutils/share/man(N-/)
-  /opt/binutils/share/man(N-/)
-  /usr/local/share/linux(N-/)
-  /Applications/CMake.app/Contents/man(N-/)
-  $manpath
-)
-
-ld_library_path=(
-  /opt/llvm/lib(N-/)
-  /opt/cern/root/lib(N-/)
-  /usr/local/cuda/lib(N-/)
-  /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib(N-/)
-  /usr/local/lib(N-/)
-  $(xcrun --show-sdk-path)/usr/lib(N-/)
-  /usr/lib(N-/)
-)
-
-include=(
-  /opt/llvm/include(N-/)
-  /opt/cern/root/include(N-/)
-  /usr/local/cuda/include(N-/)
-  /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/include(N-/)
-  /usr/local/include(N-/)
-  $(xcrun --show-sdk-path)/usr/include(N-/)
-  /usr/include(N-/)
-  $include
-)
-
-# Use self build llvm compiler tool set
-# /opt/llvm/lib(N-/)
-# /opt/llvm/include(N-/)
+export XDG_LOG_HOME="${XDG_DATA_HOME}/var/log"
 
 
 # }}}
-################################################################################
-#
+# -----------------------------------------------------------------------------
 # Common terminal environment variables {{{
-#
 
 export SHELL="/usr/local/bin/zsh"
 export TERM='xterm-256color'
@@ -175,23 +82,24 @@ export VISUAL="nvim"
 export PAGER='less -R'
 export MANPAGER='less -R'
 export GIT="/usr/local/bin/git"
+export BROWSER="/Applications/Chromium.app/Contents/MacOS/Chromium"
 
 # export CLICOLOR=1
 export BLOCKSIZE=1k
 
 if [[ "$OSTYPE" == darwin* ]]; then
-  export BROWSER=open
+  # export BROWSER=open
+  export BROWSER=/Applications/Chromium.app/Contents/MacOS/Chromium # for pprof
 fi
+export CACHE=$XDG_CACHE_HOME
 
 if [[ -z "$LANG" ]]; then
-  export LANG=en_US.UTF-8
+  export LANG='en_US.UTF-8'
 fi
 
 # }}}
-################################################################################
-#
+# -----------------------------------------------------------------------------
 # Build {{{
-#
 
 # ARFLAGS  - for ar achiver
 # ASFLAGS  - for as assembler
@@ -203,41 +111,35 @@ fi
 # PFLAGS   - for Pascal compiler
 # YFLAGS   - for yacc
 
-export CC="${DEVELOPER_DIR}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+# export CC="${DEVELOPER_DIR}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+export CC='clang'
 export CXX="${CC}++"
-
-export MAKEFLAGS="-j $(($(nproc)+1))"
-
-export PYTHON_PREFIX="/usr/local/Frameworks/Python.framework/Versions/3.6"
+# export MAKEFLAGS="-j $(($(/opt/coreutils/bin/nproc)+1))" # exec command too slow
+export MAKEFLAGS="-j"
 
 # }}}
-################################################################################
-#
+# -----------------------------------------------------------------------------
 # Tools {{{
-#
 
 # Neovim
 export NVIM_TUI_ENABLE_CURSOR_SHAPE=1
-export NVIM_TUI_ENABLE_TRUE_COLOR=1
 export NVIM_LISTEN_ADDRESS='/tmp/nvim'
-
-export DEIN_DIR=$HOME/.cache/nvim/dein/repos/github.com
-
-# Use child sessions. faster?
 # export NVIM_CHILD_ARGV='["nvim", "-u", "NONE", "--embed"]'
 # Logging for development plugins
 export NVIM_VERBOSE_LOG_FILE="${XDG_LOG_HOME}/nvim/verbose.log"
+export NVIM_GO_DEBUG=1
 if [[ -d "${XDG_LOG_HOME}/nvim/go" ]]; then
   mkdir -p "${XDG_LOG_HOME}/nvim/go"
 fi
 if [[ -d "${XDG_LOG_HOME}/nvim/python" ]]; then
   mkdir -p "${XDG_LOG_HOME}/nvim/python"
 fi
-export NVIM_GO_LOG_FILE="${XDG_LOG_HOME}/nvim/go/client.log"
-export NEOVIM_GO_LOG_FILE="${XDG_LOG_HOME}/nvim/go/client.log"
+export NEOVIM_GO_LOG_FILE="${XDG_LOG_HOME}/nvim/go/neovim-go.log"
 # If always export NVIM_PYTHON_LOG_FILE, nvim will be parse log file path
 # export NVIM_PYTHON_LOG_FILE="${XDG_LOG_HOME}/nvim/python/python-client.log"
 # export NVIM_PYTHON_LOG_LEVEL="DEBUG"
+export NVIM_IPY_DEBUG_FILE="${XDG_LOG_HOME}/nvim/python/nvim-ipy.log"
+export NVIM_DEOPLETE_JEDI_LOG_FILE="${XDG_LOG_HOME}/nvim/python/deoplete.log"
 
 
 # gdb
@@ -256,14 +158,16 @@ export SSL_CERT_FILE="/usr/local/etc/ssl/certs/curl-ca-bundle.crt"
 # Machine
 export MACHINE_DEBUG=1
 export MACHINE_DRIVER_DEBUG=1
-# Always use experimental install
-export MACHINE_DOCKER_INSTALL_URL="https://experimental.docker.com"
+export MACHINE_DOCKER_INSTALL_URL="https://experimental.docker.com" # Always use experimental install
 export MACHINE_NATIVE_SSH=1
-# export MACHINE_BUGSNAG_API_TOKEN=
 
+# grep
+export GREP_COLOR='30;43'           # BSD
+export GREP_COLORS="mt=$GREP_COLOR" # GNU
 
 # dircolors
-eval "$(/opt/coreutils/bin/dircolors --sh)"
+# eval "$(/opt/coreutils/bin/dircolors --sh)"
+export LS_COLORS='rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=01;37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:';
 
 
 # Less
@@ -282,7 +186,7 @@ fi
 
 # google cloud sdk
 # gcloud support only python2 when install gcloud
-export CLOUDSDK_PYTHON="/usr/local/bin/python2"
+export CLOUDSDK_PYTHON="python2"
 
 
 # z.sh
@@ -313,23 +217,15 @@ export HOMEBREW_MAKE_JOBS=8
 export HOMEBREW_VERBOSE=1
 export HOMEBREW_CASK_OPTS="--appdir=/Applications --caskroom=/Applications/Caskroom"
 
-
 # }}}
-################################################################################
-
-#
+# -----------------------------------------------------------------------------
 # Languages {{{
-#
 
 # Go
-export GOROOT="/usr/local/go"
 export GOPATH="${HOME}/go"
-export GOMAXPROCS=8
-export GOOS="darwin"
-export GOARCH="amd64"
+export GOROOT_BOOTSTRAP="/usr/local/bootstrap/go/go1.4.3"
 export GO15VENDOREXPERIMENT=1
 export CGO_ENABLED=1
-export GOROOT_BOOTSTRAP="/usr/local/bootstrap/go1.6"
 
 
 # Jupyter
@@ -339,14 +235,16 @@ export JUPYTER_PATH="$XDG_DATA_HOME/jupyter"
 
 
 # Python
+export PYTHON_CONFIGURE_OPTS="--enable-shared"
+export VIRTUAL_ENV_DISABLE_PROMPT=1
 export PYTHONSTARTUP="${XDG_CONFIG_HOME}/python/.pythonrc"
 export IPYTHONDIR="${XDG_CONFIG_HOME}/ipython"
 
 # Ruby
 export RBENV_ROOT="/usr/local/var/rbenv"
-if (( $+commands[rbenv] )); then
-    eval "$(rbenv init -)"
-fi
+# if (( $+commands[rbenv] )); then
+#     eval "$(rbenv init -)"
+# fi
 
 
 # Node
@@ -358,11 +256,9 @@ export NODE_REPL_HISTORY="$HOME/.history/node/.node_repl_history"
 export JAVA_HOME=$(/usr/libexec/java_home)
 
 
-# Vagrant
-# export VAGRANT_DEFAULT_PROVIDER=virtualbox
-# export VAGRANT_VMWARE_FUSION_APP=/Applications/VMware\ Fusion\ 7.app
-# export VAGRANT_HOME=/Volumes/WD20EZRX/.vagrant.d/
-
+# Ocaml
+# export PERL5LIB="$HOME/.opam/system/lib/perl5"
+# . $HOME/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
 
 # API token
 . "$XDG_DATA_HOME/token/token"
@@ -387,9 +283,167 @@ export PGDATA="/usr/local/var/postgres"
 # gnulib issue
 export gl_cv_func_getcwd_abort_bug="no"
 
-# OCaml
-. $HOME/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
+# }}}
+# -----------------------------------------------------------------------------
+# Global Environment variables
+
+# typeset to (lower|upper)case environment variable
+local -a _typeset
+
+_typeset=(
+  CLASSPATH \
+  CPATH \
+  DAALROOT \
+  DYLD_LIBRARY_PATH \
+  FPATH \
+  INCLUDE \
+  INTEL_LICENSE_FILE \
+  INTEL_PYTHONHOME \
+  IPPROOT \
+  LD_LIBRARY_PATH \
+  LIBRARY_PATH \
+  MANPATH \
+  MKLROOT \
+  NLSPATH \
+  PATH \
+  PERL5LIB \
+  TBBROOT \
+)
+
+for type in $_typeset[@]; do
+  [ -z $"${type:l}" ] && typeset -xT ${type} ${type:l}
+done
+typeset -U "$_typeset[@]:l"
+
+path=(
+  ${HOME}/bin(N-/)
+  /Applications/Docker.app/Contents/Resources/bin(N-/)
+  /usr/local/go/bin(N-/)
+  ${GOPATH}/bin(N-/)
+  /opt/intel/bin(N-/)
+  /opt/intel/intelpython35/bin(N-/)
+  /opt/intel/intelpython27/bin(N-/)
+  ${HOME}/.local/bin(N-/)
+  ${HOME}/.pyenv/bin(N-/)
+  ${RBENV_ROOT}/shims(N-/)
+  ${NODEBREW_ROOT}/current/bin(N-/)
+  ${HOME}/.nimble/bin(N-/)
+  ${HOME}/google-cloud-sdk/bin(N-/)
+  /usr/local/cuda/bin(N-/)
+  /opt/newosxbook/bin(N-/)
+  /opt/coreutils/bin(N-/)
+  /opt/binutils/bin(N-/)
+  /usr/local/{bin,sbin}
+  /usr/{bin,sbin}(N-/)
+  ${DEVELOPER_DIR}/Toolchains/XcodeDefault.xctoolchain/usr/bin(N-/)
+  /opt/llvm/bin(N-/)
+  /opt/cern/root/bin(N-/)
+  /opt/cern/cling/bin(N-/)
+  ${DEVELOPER_DIR}/usr/bin(N-/)
+  /{bin,sbin}(N-/)
+  /usr/local/opt/afdko/Tools/osx(N-/)
+  /opt/apple/llbuild/bin(N-/)
+  /opt/apple/lldb/bin(N-/)
+  /opt/apple/llvm/bin(N-/)
+  /opt/apple/swift/bin(N-/)
+  $path
+)
+
+fpath=(
+  ${HOME}/.zsh/functions(N-/)
+  ${HOME}/.zsh/completions(N-/)
+  /usr/local/opt/git/share/zsh/site-functions(N-/)
+  ${HOME}/src/github.com/zchee/go-zsh-completions(N-/)
+  ${ZSH_PLUGIN}/zsh-users/zsh-completions/src(N-/)
+  ${ZSH_PLUGIN}/zsh-users/zsh-syntax-highlighting(N-/)
+  $fpath
+)
+
+include=(
+  /opt/llvm/include(N-/)
+  /opt/cern/root/include(N-/)
+  /usr/local/cuda/include(N-/)
+  /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/include(N-/)
+  /usr/local/include(N-/)
+  $(xcrun --show-sdk-path)/usr/include(N-/)
+  /usr/include(N-/)
+  $include
+)
+
+ld_library_path=(
+  /opt/intel/lib(N-/)
+  /opt/llvm/lib(N-/)
+  /opt/cern/root/lib(N-/)
+  /usr/local/cuda/lib(N-/)
+  /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib(N-/)
+  /usr/local/lib(N-/)
+  $(xcrun --show-sdk-path)/usr/lib(N-/)
+  /usr/lib(N-/)
+  $ld_library_path
+)
+
+manpath=(
+  /opt/intel/man/common(N-/)
+  /opt/intel/man/gdb-ia(N-/)
+  /opt/llvm/share/man(N-/)
+  /usr/local/share/man(N-/)
+  ${DEVELOPER_DIR}/Toolchains/XcodeDefault.xctoolchain/usr/share/man(N-/)
+  ${DEVELOPER_DIR}/usr/share/man(N-/)
+  /usr/share/man(N-/)
+  /opt/coreutils/share/man(N-/)
+  /opt/binutils/share/man(N-/)
+  /usr/local/share/linux(N-/)
+  /opt/cern/root/man(N-/)
+  $manpath
+)
+
+# Intel compiler toolchain
+export CLASSPATH=/opt/intel/compilers_and_libraries/mac/daal/lib/daal.jar
+export DAALROOT=/opt/intel/compilers_and_libraries/mac/daal
+export INTEL_LICENSE_FILE=/opt/intel/licenses
+export INTEL_PYTHONHOME=/opt/intel/debugger_2017/python/intel64
+export IPPROOT=/opt/intel/compilers_and_libraries/mac/ipp
+export MKLROOT=/opt/intel/compilers_and_libraries/mac/mkl
+export TBBROOT=/opt/intel/compilers_and_libraries/mac/tbb
+
+export CPATH=/opt/intel/compilers_and_libraries/mac/daal/include:/opt/intel/compilers_and_libraries/mac/ipp/include:/opt/intel/compilers_and_libraries/mac/mkl/include:/opt/intel/compilers_and_libraries/mac/tbb/include
+export DYLD_LIBRARY_PATH=/opt/intel/compilers_and_libraries/mac/lib:/opt/intel/compilers_and_libraries/mac/lib/intel64:/opt/intel/compilers_and_libraries/mac/daal/lib:/opt/intel/compilers_and_libraries/mac/ipp/lib:/opt/intel/compilers_and_libraries/mac/mkl/lib:/opt/intel/compilers_and_libraries/mac/tbb/lib
+export LIBRARY_PATH=/opt/intel/compilers_and_libraries/mac/lib:/opt/intel/compilers_and_libraries/mac/tbb/lib:/opt/intel/compilers_and_libraries/mac/daal/lib:/opt/intel/compilers_and_libraries/mac/ipp/lib:/opt/intel/compilers_and_libraries/mac/mkl/lib
+export NLSPATH=/opt/intel/compilers_and_libraries/mac/lib/locale/en_US:/opt/intel/compilers_and_libraries/mac/mkl/lib/locale/en_US
+# Why can't use it?
+# cpath=(
+#   /opt/intel/include(N-/)
+#   /opt/intel/compilers_and_libraries/mac/daal/include(N-/)
+#   /opt/intel/compilers_and_libraries/mac/ipp/include(N-/)
+#   /opt/intel/compilers_and_libraries/mac/mkl/include(N-/)
+#   /opt/intel/compilers_and_libraries/mac/tbb/include(N-/)
+#   $cpath
+# )
+# dyld_library_path=(
+#   /opt/intel/compilers_and_libraries/mac/lib(N-/)
+#   /opt/intel/compilers_and_libraries/mac/lib/intel64(N-/)
+#   /opt/intel/compilers_and_libraries/mac/daal/lib(N-/)
+#   /opt/intel/compilers_and_libraries/mac/ipp/lib(N-/)
+#   /opt/intel/compilers_and_libraries/mac/mkl/lib(N-/)
+#   /opt/intel/compilers_and_libraries/mac/tbb/lib(N-/)
+#   $dyld_library_path
+# )
+# library_path=(
+#   /opt/intel/compilers_and_libraries/mac/lib(N-/)
+#   /opt/intel/compilers_and_libraries/mac/tbb/lib(N-/)
+#   /opt/intel/compilers_and_libraries/mac/daal/lib(N-/)
+#   /opt/intel/compilers_and_libraries/mac/ipp/lib(N-/)
+#   /opt/intel/compilers_and_libraries/mac/mkl/lib(N-/)
+#   /opt/intel/compilers_and_libraries/mac/tbb/lib(N-/)
+#   $library_path
+# )
+# nlspath=(
+#   /opt/intel/compilers_and_libraries/mac/lib/locale/en_US(N-/)
+#   /opt/intel/compilers_and_libraries/mac/mkl/lib/locale/en_US(N-/)
+#   $nlspath
+# )
 
 # }}}
-################################################################################
+# -----------------------------------------------------------------------------
+
 if [[ -n ${ZSH_DEBUG} ]]; then; echo 'Finished zshenv'; fi
