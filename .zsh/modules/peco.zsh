@@ -15,18 +15,6 @@ zle -N peco_select_history
 bindkey '^r' peco_select_history
 bindkey '^z^r' history-incremental-search-backward
 
-# Go
-# function peco-go() {
-#   local SELECTED_DIR=$(golist | peco)
-#   if [ -n "$SELECTED_DIR" ]; then
-#     BUFFER="cd ${SELECTED_DIR}"
-#     zle accept-line
-#   fi
-#   zle clear-screen
-# }
-# zle -N peco-go
-# bindkey '^z^g' peco-go
-
 # ghq
 #   - http://weblog.bulknews.net/post/89635306479/ghq-peco-percol
 function peco-ghq() {
@@ -44,7 +32,26 @@ bindkey '^q' peco-ghq
 function peco-ssh() {
   ssh $(awk 'tolower($1)=="host" {for (i=2; i<=NF; i++) {if ($i !~ "[*?]") {print $i}}}' ~/.ssh/config | grep -v '127.0.0.1' | sort | peco)
 }
-alias s='peco-ssh'
+alias peco_ssh='peco-ssh'
+
+# peco + godoc
+# http://syohex.hatenablog.com/entry/20140620/1403257070
+function pecodoc() {
+    local -a go_packages
+
+    go_packages=("builtin")
+    for dir in $GOROOT $(perl -wle 'print $_ for split q{:}, shift' $GOPATH)
+    do
+        pkgdir="$dir/pkg"
+        if [ -d $pkgdir ]; then
+            packages=$(find $pkgdir -name "*.a" -type f \
+                       | perl -wlp -e "s{$pkgdir/(?:(?:obj|tool)/)?[^/]+/}{} and s{\\.a\$}{}")
+            go_packages=($packages $go_packages)
+        fi
+    done
+
+    command godoc $(echo $go_packages | sort | uniq | peco) | $PAGER
+}
 
 # }}}
 ####################################################################################################
