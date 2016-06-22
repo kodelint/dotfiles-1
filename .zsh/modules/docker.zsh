@@ -3,12 +3,12 @@
 #
 
 # docker
-alias d="docker"
-alias ds="docker-stable"
+# alias d="docker"
+# alias ds="docker-stable"
 
 # docker alias
 # Images
-alias di="docker images" # Get images
+# alias di="docker images" # Get images
 # Containers
 alias dpa="docker ps -a" # Get container process
 alias dl="docker ps -l -q" # Get latest container ID
@@ -51,11 +51,11 @@ alias dmls="dm ls"
 alias dmrm="dm rm"
 
 # docker-compose
-alias dc="CURL_CA_BUNDLE= docker-compose --verbose"
-alias compose="CURL_CA_BUNDLE= docker-compose --verbose"
-alias dcb="dc build --force-rm"
-alias dcu="dc up"
-alias dcud="dc up -d"
+# alias dc="CURL_CA_BUNDLE= docker-compose --verbose"
+# alias compose="CURL_CA_BUNDLE= docker-compose --verbose"
+alias dcb="docker-compose build --force-rm"
+alias dcu="docker-compose up"
+alias dcud="docker-compose up -d"
 
 # }}}
 ####################################################################################################
