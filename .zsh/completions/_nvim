@@ -1,4 +1,4 @@
-#compdef nvim
+#compdef nvim vim
 
 (( $+functions[_nvim_files] )) ||
 _nvim_files () {
@@ -66,6 +66,9 @@ arguments=(
   '(- *)'{-h,--help}'[Print this help message and exit]'
   {-v,--version}'[Print version information and exit]'
   '(* -q)-t[Edit file where tag is defined]:tag:_complete_tag'
+  '+[Start at end of file]'
+  '(*)+-[Start at line <linenum>]::line'
+  '(+/)+/-[Start at first occurrence of <pattern>]::pattern'
   '(-t -q)*:files:_files'
 )
 [[ $service != *diff ]] && arguments+='(-v -e -E -s -y)-d[Diff mode]'
