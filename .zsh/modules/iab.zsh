@@ -2,31 +2,30 @@ setopt EXTENDED_GLOB
 
 typeset -A abbreviations
 abbreviations=(
-    "A"    "| ag"
-    "C"    "| cat"
-    "D"    "--debug"
-    "E"    "2>&1 > /dev/null"
-    "G"    "| grep"
-    "L"    "| less"
-    "N"    "> /dev/null"
-    "P"    "| pbc"
-    "S"    "| sed"
-    "T"    "| tail"
-    "W"    "| wc"
-    "X"    "| xargs"
+  "A"    "| ag"
+  "C"    "\`ls | cho\`"
+  "D"    "--debug"
+  "E"    "2>&1 > /dev/null" # >/dev/null 2>&1
+  "G"    "| grep"
+  "H"    "| pt"
+  "L"    "| less"
+  "N"    "> /dev/null"
+  "P"    "| pbc"
+  "S"    "| sed"
+  "T"    "| tail"
+  # "W"    "| wc"
+  # "X"    "| xargs"
 )
 
 magic-abbrev-expand() {
-    local MATCH
-    LBUFFER=${LBUFFER%%(#m)[-_a-zA-Z0-9]#}
-    LBUFFER+=${abbreviations[$MATCH]:-$MATCH}
-    zle self-insert
-
+  local MATCH
+  LBUFFER=${LBUFFER%%(#m)[-_a-zA-Z0-9]#}
+  LBUFFER+=${abbreviations[$MATCH]:-$MATCH}
+  zle self-insert
 }
 
 no-magic-abbrev-expand() {
-    LBUFFER+=' '
-
+  LBUFFER+=' '
 }
 
 zle -N magic-abbrev-expand
