@@ -1,0 +1,251 @@
+#!/usr/bin/env fontforge
+# vim:ts=2:sw=2:tw=0
+
+# Print('--------------------------------------------------')
+
+# --------------------------------------------------
+# Source Code Pro
+# 750 x 250 = 1000(Em)
+# Win(Ascent, Descent)=(-16, -127)
+# hhea(height, width)=(-16, 127)
+# --------------------------------------------------
+open('./SourceCodePro-Regular-Nerd.otf')
+Select(0x0000,0x001f)
+Clear()
+Select(0x0080,0x010000)
+Clear()
+# ----------
+SelectNone()
+SelectAll()
+ClearInstrs()
+#ClearHints()
+UnlinkReference()
+ScaleToEm(750,250)
+CenterInWidth()
+Generate('tmp_scp_reg.otf')
+Close()
+# --------------------------------------------------
+open('./SourceCodePro-Bold-Nerd.otf')
+Select(0x0000,0x001f)
+Clear()
+Select(0x0080,0x010000)
+Clear()
+# ----------
+SelectNone()
+SelectAll()
+ClearInstrs()
+#ClearHints()
+UnlinkReference()
+ScaleToEm(750,250)
+CenterInWidth()
+Generate('tmp_scp_bold.otf')
+Close()
+
+# --------------------------------------------------
+# Migu 1M
+# 750 x 140 = 1000(Em)
+# Win(Ascent, Descent)=(-195, -90)
+# hhea(height, width)=(-195, 90)
+# --------------------------------------------------
+open('./SourceHanSans-Regular.otf')
+Select(0x0020,0x007e)
+Clear()
+# ----------
+SelectNone()
+SelectAll()
+ClearInstrs()
+#ClearHints()
+UnlinkReference()
+ScaleToEm(750,250)
+CenterInWidth()
+Generate('tmp_SourceHanSans-r.otf')
+Close()
+# --------------------------------------------------
+open('./SourceHanSans-Bold.otf')
+Select(0x0020,0x007e)
+Clear()
+# ----------
+SelectNone()
+SelectAll()
+ClearInstrs()
+#ClearHints()
+UnlinkReference()
+ScaleToEm(750,250)
+CenterInWidth()
+Generate('tmp_SourceHanSans-b.otf')
+Close()
+
+
+
+
+# --------------------------------------------------
+# CodeM
+# 750 x 250 = 1110(Em)
+# Win(Ascent, Descent)=(-195, -90)
+# hhea(height, width)=(-195, 90)
+# --------------------------------------------------
+Open('tmp_SourceHanSans-r.otf')
+MergeFonts('tmp_scp_reg.otf')
+
+copyright   = 'CodeM Generator Author: Koichi Shiraishi\n' \
+            + 'Copyright (c) 2016 '
+version     = '1.0.0'
+
+# Regular
+SetFontNames('SauceCodePro-Regular', 'SauceCodePro', 'SauceCodePro Regular', 'Regular', copyright, version)
+SetTTFName(0x411, 1, 'SauceCodePro')
+SetUniqueID(0)
+SetOS2Value('VendorID', 'MfFt');
+SetOS2Value('TypoLineGap', 0);
+Select(u0021); ExpandStroke(20,0,0,0,1);
+Select(u002c);               # ,
+ExpandStroke(20,0,0,0,1);
+Select(u002d); Move(0,-80);  # -
+Select(u002e);               # .
+ExpandStroke(20,0,0,0,1);
+Select(u003a);               # :
+ExpandStroke(20,0,0,0,1);
+Select(u003b);               # ;
+ExpandStroke(20,0,0,0,1);
+Select(u003c); Move(0,-80);  # <
+Select(u003d); Move(0,-80);  # =
+Select(u003e); Move(0,-80);  # >
+Select(u0040); Move(0, 80);  # @
+Select(u005b); Move(0, 40);  # [
+Select(u005d); Move(0, 40);  # ]
+Select(u005e); Move(0,180);  # ^
+Select(u005f); Move(0,-60);  # _
+ExpandStroke(40,0,0,0,1);
+Select(u007b); Move(0, 40);  # {
+Select(u007c); Move(0, 70);  # |
+Select(u002d); Copy();
+Select(u009c); Paste();
+Rotate(90); Move(0,340); Copy();
+Select(u007c); Paste();
+Select(u002d); Copy();
+Select(u009c); Paste();
+Rotate(90); Move(0,-140); Copy();
+Select(u007c); PasteInto();
+Select(u007d); Move(0, 40);  # }
+Select(u007e); Move(0,260);  # ~
+Select(u3001); Move(-140,0); # 
+SetWidth(140,1);
+Select(u3002); Move(-140,0); #
+SetWidth(140,1);
+Select(u2610); Copy();
+Select(u3000); Paste()
+Select(u271a); Copy();
+Select(u3000); PasteInto()
+OverlapIntersect()
+# ------------------------------
+defAscent  = GetOS2Value('WinAscent')
+defDescent = GetOS2Value('WinDescent')
+addAscent  = defAscent + 64
+addDescent = defDescent + 16
+SetOS2Value('WinAscent',               addAscent)
+SetOS2Value('WinDescent',              addDescent)
+SetOS2Value('HHeadAscent',             addAscent)
+SetOS2Value('HHeadDescent',           -addDescent)
+Generate('SauceCodePro-Regular.otf')
+# Wide
+SetFontNames('CodeMWide-Regular', 'CodeM Wide', 'CodeM Wide Regular', 'Wide', copyright, version)
+SetTTFName(0x411, 1, 'CodeM Wide')
+addAscent  = defAscent + 128
+addDescent = defDescent + 32
+SetOS2Value('WinAscent',               addAscent)
+SetOS2Value('WinDescent',              addDescent)
+SetOS2Value('HHeadAscent',             addAscent)
+SetOS2Value('HHeadDescent',           -addDescent)
+Generate('SauceCodePro-Regular-Wide.otf')
+# Expanded
+SetFontNames('CodeMExpanded-Regular', 'CodeM Expanded', 'CodeM Expanded Regular', 'Expanded', copyright, version)
+SetTTFName(0x411, 1, 'CodeM Expanded')
+addAscent  = defAscent + 192
+addDescent = defDescent + 48
+SetOS2Value('WinAscent',               addAscent)
+SetOS2Value('WinDescent',              addDescent)
+SetOS2Value('HHeadAscent',             addAscent)
+SetOS2Value('HHeadDescent',           -addDescent)
+Generate('SauceCodePro-Regular-Expanded.otf')
+Close()
+
+# Open('tmp_SourceHanSans-b.otf')
+# MergeFonts('tmp_scp_bold.otf')
+#
+# copyright   = 'CodeM Generator Author: Koichi Shiraishi\n' \
+#             + 'Copyright (c) 2016 '
+# version     = '1.0.0'
+#
+# # Bold
+# SetFontNames('SauceCodePro-Bold', 'SauceCodePro', 'SauceCodePro Bold', 'Bold', copyright, version)
+# SetTTFName(0x411, 1, 'SauceCodePro')
+# SetUniqueID(0)
+# SetOS2Value('VendorID',                'MfFt')
+# SetOS2Value('TypoLineGap',             0)
+# # ------------------------------
+# Select(0u0021);               # !
+#   ExpandStroke(20,0,0,0,1);
+# Select(0u002c);               # ,
+#   ExpandStroke(20,0,0,0,1);
+# Select(0u002d); Move(0,-80);  # -
+# Select(0u002e);               # .
+#   ExpandStroke(20,0,0,0,1);
+# Select(0u003a);               # :
+#   ExpandStroke(20,0,0,0,1);
+# Select(0u003b);               # ;
+#   ExpandStroke(20,0,0,0,1);
+# Select(0u003c); Move(0,-80);  # <
+# Select(0u003d); Move(0,-80);  # =
+# Select(0u003e); Move(0,-80);  # >
+# Select(0u0040); Move(0, 80);  # @
+# Select(0u005b); Move(0, 40);  # [
+# Select(0u005d); Move(0, 40);  # ]
+# Select(0u005e); Move(0,180);  # ^
+# Select(0u005f); Move(0,-60);  # _
+#   ExpandStroke(40,0,0,0,1);
+# Select(0u007b); Move(0, 40);  # {
+# Select(0u007c); Move(0, 70);  # |
+#   Select(0u002d); Copy(); Select(0u009c); Paste();
+#   Rotate(90); Move(0,340); Copy(); Select(0u007c); Paste();
+#   Select(0u002d); Copy(); Select(0u009c); Paste();
+#   Rotate(90); Move(0,-140); Copy(); Select(0u007c); PasteInto();
+# Select(0u007d); Move(0, 40);  # }
+# Select(0u007e); Move(0,260);  # ~
+# Select(0u3001); Move(-140,0); #
+#   SetWidth(140,1);
+# Select(0u3002); Move(-140,0); #
+#   SetWidth(140,1);
+# Select(0u2610); Copy(); Select(0u3000); Paste()
+# Select(0u271a); Copy(); Select(0u3000); PasteInto()
+# OverlapIntersect()
+# # ------------------------------
+# defAscent  = GetOS2Value('WinAscent')
+# defDescent = GetOS2Value('WinDescent')
+# addAscent  = defAscent + 64
+# addDescent = defDescent + 16
+# SetOS2Value('WinAscent',               addAscent)
+# SetOS2Value('WinDescent',              addDescent)
+# SetOS2Value('HHeadAscent',             addAscent)
+# SetOS2Value('HHeadDescent',           -addDescent)
+# Generate('SauceCodePro-Bold.otf')
+# # Wide
+# SetFontNames('CodeMWide-Bold', 'CodeM Wide', 'CodeM Wide Bold', 'Wide', copyright, version)
+# SetTTFName(0x411, 1, 'CodeM Wide')
+# addAscent  = defAscent + 128
+# addDescent = defDescent + 32
+# SetOS2Value('WinAscent',               addAscent)
+# SetOS2Value('WinDescent',              addDescent)
+# SetOS2Value('HHeadAscent',             addAscent)
+# SetOS2Value('HHeadDescent',           -addDescent)
+# Generate('SauceCodePro-Bold-Wide.otf')
+# # Expanded
+# SetFontNames('CodeMExpanded-Bold', 'CodeM Expanded', 'CodeM Expanded Bold', 'Expanded', copyright, version)
+# SetTTFName(0x411, 1, 'CodeM Expanded')
+# addAscent  = defAscent + 192
+# addDescent = defDescent + 48
+# SetOS2Value('WinAscent',               addAscent)
+# SetOS2Value('WinDescent',              addDescent)
+# SetOS2Value('HHeadAscent',             addAscent)
+# SetOS2Value('HHeadDescent',           -addDescent)
+# Generate('SauceCodePro-Bold-Expanded.otf')
+# Close()

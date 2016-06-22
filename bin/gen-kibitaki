@@ -1,0 +1,102 @@
+#!/usr/bin/env fontforge -lang=py -script
+# -*- coding: utf-8 -*-
+
+import fontforge
+from datetime import date
+import os
+
+# Source Code Pro のあるディレクトリのパス. めんどいのでこのスクリプトと同じとこにおいてください.
+scpro_path = os.getcwd()
+
+# M+ のあるディレクトリのパス
+mplus_path = os.getcwd()
+
+# Kibitakiを生成するディレクトリのパス
+# 同じディレクトリに一時ファイルも生成される
+kibitaki_path = os.getcwd() + "./Kibitaki"
+
+# .sfd を出力するディレクトリのパス
+sfd_path = os.getcwd() + "./Kibitaki"
+
+# フォントリスト
+# Open Sans ファイル名, M+ ファイル名, Kibitaki ウェイト
+font_list = [
+    ("SourceCodePro-Regular.ttf", "mplus-1mn-regular.ttf", "Regular"),
+]
+
+def main():
+    # 縦書き対応
+    fontforge.setPrefs('CoverageFormatsAllowed', 1)
+
+    # バージョンを今日の日付から生成する
+    today = date.today()
+    version = "Kibitaki-{0}".format(today.strftime("%Y%m%d"))
+
+    for (sp, mp, weight) in font_list:
+        sp_path = "{0}/{1}".format(scpro_path, sp)
+        mp_path = "{0}/{1}".format(mplus_path, mp)
+        ki_path = "{0}/Kibitaki-{1}.ttf".format(kibitaki_path, weight)
+        sf_path = "{0}/Kibitaki-{1}".format(sfd_path, weight)
+        generate_kibitaki(sp_path, mp_path, ki_path, sf_path, weight, version)
+
+def kibitaki_sfnt_names(weight, version):
+    return (
+        ('English (US)', 'Copyright',
+         '''\
+         Kibitaki: Copylight (c) 2014-2015, lindwurm.
+         M+ 1p: Copyright (C) 2002-2015, M+ FONTS PROJECT.
+         Source Code Pro: Copyright 2010, 2012 Adobe Systems Incorporated. All Rights Reserved.'''),
+        ('English (US)', 'Family', 'Kibitaki {0}'.format(weight)),
+        ('English (US)', 'SubFamily', weight),
+        ('English (US)', 'Fullname', 'Kibitaki-{0}'.format(weight)),
+        ('English (US)', 'Version', version),
+        ('English (US)', 'PostScriptName', 'Kibitaki-{0}'.format(weight)),
+        ('English (US)', 'Vendor URL', 'http://lindwurm.biz'),
+        ('English (US)', 'Preferred Family', 'Kibitaki'),
+        ('English (US)', 'Preferred Styles', weight),
+        ('Japanese', 'Preferred Family', 'Kibitaki'),
+        ('Japanese', 'Preferred Styles', weight),
+    )
+
+#def kibitaki_gasp():
+#    return (
+#        (8, ('antialias',)),
+#        (13, ('antialias', 'symmetric-smoothing')),
+#        (65535, ('gridfit', 'antialias', 'symmetric-smoothing', 'gridfit+smoothing')),
+#    )
+
+def generate_kibitaki(sp_path, mp_path, ki_path, sf_path, weight, version):
+    # M+ を開く
+    font = fontforge.open(mp_path)
+
+    # Source Code Pro を開く
+    spfont = fontforge.open(sp_path)
+
+    # Source Code Pro に含まれるグリフを削除する
+    font.selection.none()
+    spfont.selection.all()
+    for glyph in spfont.selection.byGlyphs:
+        if glyph.glyphname in font:
+            font.selection.select(("more",), glyph.glyphname)
+    font.clear()
+        
+    # Source Code Pro をマージする
+    font.mergeFonts(sp_path)
+
+    # フォント情報の設定
+    font.sfnt_names = kibitaki_sfnt_names(weight, version)
+    font.os2_vendor = "maud"
+
+    # Grid Fittingの設定
+    # font.gasp = kibitaki_gasp()
+
+    # TTF の生成
+    font.generate(ki_path, '', ('short-post', 'opentype', 'PfEd-lookups'))
+
+    # .sfd を出力
+    kbtk=fontforge.open(ki_path)
+    source = sf_path + ".sfd"
+    kbtk.save(source)
+
+if __name__ == '__main__':
+    main()

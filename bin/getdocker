@@ -1,0 +1,38 @@
+#!/bin/bash
+set -e
+
+if [[ $1 == "master" ]]; then
+  DOCKER_VERSION=master
+  DOCKER_DOWNLOAD_URL=https://master.dockerproject.org/darwin/amd64/docker
+  if [[ ! $DOCKER_BIN ]]; then
+    DOCKER_BIN=docker-dev
+  fi
+elif [[ $1 == "stable" ]]; then
+  DOCKER_VERSION=`curl --silent -L https://api.github.com/repos/docker/docker/releases/latest | jq -r '.tag_name' | sed 's/^v//g'`
+  DOCKER_DOWNLOAD_URL=https://get.docker.com/builds/Darwin/x86_64/docker-$DOCKER_VERSION
+  if [[ ! $DOCKER_BIN ]]; then
+    DOCKER_BIN=docker
+  fi
+elif [[ $1 == "" ]]; then
+  echo "need docker version as arguments [master, stable, release-tag]"
+  exit 1
+else
+  DOCKER_VERSION=$1
+  DOCKER_DOWNLOAD_URL=https://test.docker.com/builds/Darwin/x86_64/docker-$DOCKER_VERSION
+  if [[ ! $DOCKER_BIN ]]; then
+    DOCKER_BIN=docker-$DOCKER_VERSION
+  fi
+fi
+
+
+if [[ -f /usr/local/bin/$DOCKER_BIN ]]; then
+  echo ""
+  read -p "Replace the /usr/local/bin/$DOCKER_BIN OK? [y, n] " yn
+  case $yn in
+    y* ) rm -f "/usr/local/bin/docker$DOCKER_BIN" || true && curl -L $DOCKER_DOWNLOAD_URL > "/usr/local/bin/$DOCKER_BIN" && chmod +x "/usr/local/bin/$DOCKER_BIN" ;;
+    n* ) exit ;;
+    * ) echo "Please y or n.";;
+  esac
+else
+  curl -L $DOCKER_DOWNLOAD_URL > "/usr/local/bin/$DOCKER_BIN"; chmod +x "/usr/local/bin/$DOCKER_BIN"
+fi

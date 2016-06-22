@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+mkdir -p $HOME/src
+cd $HOME/src
+
+git clone https://github.com/mist64/xhyve
+cd xhyve
+
+make

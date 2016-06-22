@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ "$1" = "open" ]; then
+   REPO=`git remote -v | grep origin | perl -nle '/github\.com:(\S*)\.git/ && print $1' | head -1`
+   open "https://travis-ci.org/$REPO"
+   exit
+fi
+
+rbenv exec travis "$@"

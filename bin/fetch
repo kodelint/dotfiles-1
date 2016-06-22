@@ -1,0 +1,23 @@
+#!/bin/bash
+# set -e
+
+if ! [[ -n $1 ]]; then
+  DIRECTORY=$(readlink -f .)
+else
+  DIRECTORY=$1
+fi
+
+repository=$(find $DIRECTORY -type d -depth 1 \( ! -iname "build*" \) \( ! -iname "*mirror*" \))
+
+echo 'Update repository'
+for r in $repository
+do
+  echo "  $r"
+done
+
+for d in $repository
+do
+  cd $d
+  BRANCH=$(git name-rev --name-only --no-undefined --always HEAD)
+  git pull origin $BRANCH
+done

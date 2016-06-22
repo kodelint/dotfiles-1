@@ -1,0 +1,23 @@
+#!/bin/bash
+set -ex
+
+VERSION=1.5.2
+OS=darwin
+ARCH=amd64
+GOPATH=$HOME/go
+
+sudo mkdir -p /usr/local
+sudo chown `id -n -u`:`id -n -g` /usr/local
+
+cd /tmp
+curl -LO https://storage.googleapis.com/golang/go$VERSION.$OS-$ARCH.tar.gz
+tar -C /usr/local -xzf go$VERSION.$OS-$ARCH.tar.gz
+rm -f go$VERSION.$OS-$ARCH.tar.gz
+
+touch ~/.bash_profile
+echo "export GOPATH=$HOME/go" >> ~/.bash_profile
+echo "export PATH=/usr/local/go/bin:$GOPATH/bin:$PATH" >> ~/.bash_profile
+
+mkdir -p $GOPATH/bin $GOPATH/src $GOPATH/pkg
+
+exec -l $SHELL

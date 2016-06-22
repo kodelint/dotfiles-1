@@ -1,0 +1,57 @@
+#!/bin/bash
+set -e
+
+if ! type jq >/dev/null 2>&1; then
+  echo "$0 need jq command."
+  exit 1
+fi
+
+DOCKER_COMPOSE_CMD=docker-compose
+
+# Parse version and download url
+if [[ $1 == "master" ]]; then
+  DOCKER_COMPOSE_VERSION=master
+  DOCKER_COMPOSE_DOWNLOAD_URL=https://dl.bintray.com/docker-compose/master/docker-compose-Darwin-x86_64
+  if [[ ! $DOCKER_COMPOSE_BIN ]]; then
+    DOCKER_COMPOSE_BIN=$DOCKER_COMPOSE_CMD-dev
+  fi
+elif [[ $1 == "stable" ]]; then
+  DOCKER_COMPOSE_VERSION=`curl --silent -L https://api.github.com/repos/docker/compose/releases/latest | jq -r '.tag_name' | sed 's/^v//g'`
+  DOCKER_COMPOSE_DOWNLOAD_URL=https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-`uname -s`-`uname -m`
+  if [[ ! $DOCKER_COMPOSE_BIN ]]; then
+    DOCKER_COMPOSE_BIN=$DOCKER_COMPOSE_CMD
+  fi
+elif [[ $1 == "beta" ]]; then
+  # DOCKER_VERSION=`curl --silent -L https://api.github.com/repos/docker/docker/releases/latest | jq -r '.tag_name' | sed 's/^v//g'`
+  DOCKER_COMPOSE_DOWNLOAD_URL=`curl --silent -L https://api.github.com/repos/docker/compose/releases | jq '.[0].assets[0].browser_download_url' | sed 's/\"//g'`
+  if [[ ! $DOCKER_COMPOSE_BIN ]]; then
+    DOCKER_COMPOSE_BIN=$DOCKER_COMPOSE_CMD-beta
+  fi
+elif [[ $1 == "" ]]; then
+  echo "need docker version as arguments [master, stable, beta, release-tag]"
+  exit 1
+else
+  DOCKER_COMPOSE_VERSION=$1
+  DOCKER_COMPOSE_DOWNLOAD_URL=https://github.com/docker/compose/releases/download/$DOCKER_VERSION/docker-compose-Darwin-x86_64
+  if [[ ! $DOCKER_COMPOSE_BIN ]]; then
+    DOCKER_COMPOSE_BIN=$DOCKER_COMPOSE_CMD-$DOCKER_COMPOSE_VERSION
+  fi
+fi
+
+
+# Download binary
+if [[ -f /usr/local/bin/$DOCKER_COMPOSE_BIN ]]; then
+  echo ""
+  read -p "Replace the /usr/local/bin/$DOCKER_COMPOSE_BIN OK? [y, n] " yn
+  case $yn in
+    y* ) rm -f "/usr/local/bin/docker$DOCKER_COMPOSE_BIN" || true \
+          && curl -L $DOCKER_COMPOSE_DOWNLOAD_URL -o /usr/local/bin/$DOCKER_COMPOSE_BIN \
+          && chmod +x /usr/local/bin/$DOCKER_COMPOSE_BIN ;;
+    n* ) exit ;;
+    * ) echo "Please y or n.";;
+  esac
+else
+  curl -L $DOCKER_COMPOSE_DOWNLOAD_URL -o /usr/local/bin/$DOCKER_COMPOSE_BIN; chmod +x /usr/local/bin/$DOCKER_COMPOSE_BIN
+fi
+
+echo "Download at /usr/local/bin/$DOCKER_COMPOSE_BIN"

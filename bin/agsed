@@ -1,0 +1,9 @@
+#!/usr/bin/env zsh
+
+if [[ $(type ag) ]]; then
+  ag "$1" -l | xargs sed -i "s/$1/$2/"
+else
+  grep "$1" $PWD | xargs sed -i "s/$1/$2/"
+fi
+
+exit 0

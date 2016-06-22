@@ -1,0 +1,17 @@
+#!/bin/bash
+
+sysctl kern.maxfiles
+sysctl kern.maxfilesperproc
+sysctl kern.sysv.shmall
+sysctl kern.sysv.shmmax
+sysctl kern.sysv.shmmin
+sysctl kern.sysv.shmmni
+sysctl kern.sysv.shmseg
+
+# tcp/ip
+sysctl limipc.somaxconn
+
+sysctl net.ipv4.tcp_tw_reuse
+sysctl net.ipv4.tcp_tw_recycle
+sysctl net.ipv4.ip_local_port_range
+

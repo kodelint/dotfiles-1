@@ -1,0 +1,36 @@
+#!/bin/bash
+ 
+# This program is free software. It comes without any warranty, to
+# the extent permitted by applicable law. You can redistribute it
+# and/or modify it under the terms of the Do What The Fuck You Want
+# To Public License, Version 2, as published by Sam Hocevar. See
+# http://sam.zoy.org/wtfpl/COPYING for more details.
+#
+# tmux true color escapeSequence
+# printf "\x1b[$bg;2;$red;$green;$bluem\n"
+
+for fg in 38; do
+	for color in {0..256} ; do #Colors
+		#Display the color
+		echo -en "\x1b[${fg};5;${color}m ${color}\t\x1b["
+		#Display 10 colors per lines
+		if [ $((($color + 1) % 10)) == 0 ] ; then
+			echo #New line
+		fi
+	done
+	echo
+done
+
+for bg in 48; do
+	for color in {0..256} ; do #Colors
+		#Display the color
+		echo -en "\x1b[${bg};5;${color}m ${color}\t\x1b"
+		#Display 10 colors per lines
+		if [ $((($color + 1) % 10)) == 0 ] ; then
+			echo #New line
+		fi
+	done
+	echo
+done
+ 
+exit 0

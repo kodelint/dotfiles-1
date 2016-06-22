@@ -1,0 +1,108 @@
+#!/usr/bin/env fontforge -lang=py -script
+# -*- coding: utf-8 -*-
+
+from datetime import date
+import fontforge
+import os
+import sys
+
+font_en_path = os.getcwd()
+
+font_jp_path = os.getcwd()
+
+dist_path = os.getcwd() + "./Yibitaki"
+
+sfd_path = os.getcwd() + "./Yibitaki"
+
+# font list
+# Open Sans, JP, Weight
+font_list = [
+    (str(sys.argv[1]) + "-Regular.ttf",
+     str(sys.argv[2]) + "-Regular.otf",
+     "Regular"),
+]
+
+
+def main():
+    # Support vertical writing
+    fontforge.setPrefs('CoverageFormatsAllowed', 1)
+
+    # generate version by date
+    today = date.today()
+    version = "Yibitaki-{0}".format(today.strftime("%Y%m%d"))
+
+    for (sp, mp, weight) in font_list:
+        sp_path = "{0}/{1}".format(font_en_path, sp)
+        mp_path = "{0}/{1}".format(font_jp_path, mp)
+        ki_path = "{0}/Yibitaki-{1}.ttf".format(dist_path, weight)
+        sf_path = "{0}/Yibitaki-{1}".format(sfd_path, weight)
+        generate_yibitaki(sp_path, mp_path, ki_path, sf_path, weight, version)
+
+
+def yibitaki_sfnt_names(weight, version):
+    return (
+        ('English (US)', 'Copyright',
+         '''\
+         Yibitaki: Copylight (c) 2014-2015, lindwurm.
+         M+ 1p: Copyright (C) 2002-2015, M+ FONTS PROJECT.
+         Source Code Pro: Copyright 2010, 2012 Adobe Systems Incorporated.''' +
+         ''' All Rights Reserved.'''),
+        ('English (US)', 'Family', 'Yibitaki {0}'.format(weight)),
+        ('English (US)', 'SubFamily', weight),
+        ('English (US)', 'Fullname', 'Yibitaki-{0}'.format(weight)),
+        ('English (US)', 'Version', version),
+        ('English (US)', 'PostScriptName', 'Yibitaki-{0}'.format(weight)),
+        ('English (US)', 'Vendor URL', 'http://lindwurm.biz'),
+        ('English (US)', 'Preferred Family', 'Yibitaki'),
+        ('English (US)', 'Preferred Styles', weight),
+        ('Japanese', 'Preferred Family', 'Yibitaki'),
+        ('Japanese', 'Preferred Styles', weight),
+    )
+
+# def yibitaki_gasp():
+#     return (
+#         (8, ('antialias',)),
+#         (13, ('antialias', 'symmetric-smoothing')),
+#         (65535,
+#          ('gridfit',
+#           'antialias', 'symmetric-smoothing', 'gridfit+smoothing')),
+#         )
+
+
+def generate_yibitaki(sp_path, mp_path, ki_path, sf_path, weight, version):
+    # Open JP font
+    font = fontforge.open(mp_path)
+
+    # Open EN font
+    spfont = fontforge.open(sp_path)
+
+    # Remove glyph in EN font
+    font.selection.none()
+    spfont.selection.all()
+    for glyph in spfont.selection.byGlyphs:
+        if glyph.glyphname in font:
+            font.selection.select(("more",), glyph.glyphname)
+    font.clear()
+
+    # Merge EN font
+    font.mergeFonts(sp_path)
+
+    # Set font information
+    font.sfnt_names = yibitaki_sfnt_names(weight, version)
+    font.os2_vendor = "maud"
+
+    # Set Grid Fitting
+    # font.gasp = yibitaki_gasp()
+
+    # Gen TTF
+    font.generate(ki_path, '', ('short-post', 'opentype', 'PfEd-lookups'))
+
+    # Output .sfd
+    kbtk = fontforge.open(ki_path)
+    source = sf_path + ".sfd"
+    kbtk.save(source)
+
+if __name__ == '__main__':
+    main()
+
+# vim: filetype=python

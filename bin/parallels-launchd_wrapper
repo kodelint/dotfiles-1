@@ -1,0 +1,100 @@
+#!/bin/sh
+# vim:ts=4:sw=4:noexpandtab
+#
+# Parallels Desktop launchd wrapper.
+#
+# Copyright (c) 2004-2014 Parallels IP Holdings GmbH.
+# All rights reserved.
+# http://www.parallels.com
+
+
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+SCRIPT_NAME="$(basename "$0")"
+LOG_TAG="pdfm-bootstrap"
+LOGGER_NAME="${SCRIPT_NAME}[$$]:"
+
+BundlePath="/Applications/Parallels Desktop.app"
+ParallelsServicesStarter="${BundlePath}/Contents/MacOS/service"
+
+AUTHORITY="Authority=Developer ID Application: Parallels, Inc."
+
+#  The logging routine
+Log() {
+	logger -t "${LOG_TAG}" -p error "${LOGGER_NAME} $@"
+}
+
+function check_perm() {
+
+	local owner=$(stat -f '%Su' "${BundlePath}")
+	local perm=$(stat -f '%p' "${BundlePath}" | tail -c5)
+
+	if [ "${owner}" != "root" ]; then
+		Log "Check failed: ${BundlePath} - incorrect owner ${owner}"
+		return 1
+	fi
+
+	if [ "${perm}" != "0755" ]; then
+		Log "Check failed: ${BundlePath} - incorrect permissions ${perm}"
+		return 1
+	fi
+
+	return 0
+}
+
+function check_file_sign()
+{
+	local file="${1}"
+	codesign --verify "${file}" &&
+		codesign --display --verbose=2 --requirements - "${file}" 2>&1 | grep "${AUTHORITY}" | grep -qs -v grep
+}
+
+function check_sign() {
+	if [ ! -f "${ParallelsServicesStarter}" ]; then
+		Log "Check failed: Parallels Desktop startup script is not installed properly."
+		return 1
+	fi
+
+	check_file_sign "${ParallelsServicesStarter}"
+	if [ $? -ne 0 ]; then
+		Log "Check failed: Parallels Desktop startup script '${ParallelsServicesStarter}' has wrong signature."
+		return 1
+	fi
+
+	return 0
+}
+
+function do_action() {
+	local action="${1}"
+	if [ "${action}" == "start" ]; then
+		if ! check_perm || ! check_sign ;then
+			return 1
+		fi
+	fi
+
+	"${ParallelsServicesStarter}" "${action}" &
+	wait $!
+
+	return $?
+}
+
+trap 'do_action stop;exit 0' TERM
+
+RC=1
+case $1 in
+    start)
+        do_action start
+				RC=$?
+    ;;
+    stop)
+        do_action stop
+				RC=$?
+    ;;
+    * )
+    echo "Usage: launchd_wrapper start|stop"
+		RC=1
+    ;;
+esac
+
+exit "${RC}"
+

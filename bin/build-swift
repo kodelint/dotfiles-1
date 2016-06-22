@@ -1,0 +1,108 @@
+#!/bin/bash
+set -ex
+
+# Parse CPU max size + 1
+if hash nproc 2>/dev/null; then
+    nproc=$(($(nproc) + 1))
+else
+    nproc=$(($(sysctl -n hw.ncpu) + 1))
+fi
+
+
+# # Set $SWIFT_SOURCE_ROOT
+# export SWIFT_SOURCE_ROOT="$HOME/src/github.com/apple"
+#
+# cd $SWIFT_SOURCE_ROOT
+#
+#
+# # Fetch swift relative projects
+# if hash parallel 2>/dev/null; then
+#     parallel -j $nproc $1 'git clone --depth=1' http://github.com/{.}.git {/} ::: \
+#         apple/swift-llvm \
+#         apple/swift-clang \
+#         apple/swift \
+#         apple/swift-lldb \
+#         apple/swift-llbuild \
+#         apple/swift-package-manager \
+#         apple/swift-corelibs-foundation \
+#         apple/swift-corelibs-libdispatch \
+#         apple/cmark
+# else
+#     echo 'need gnu parallel'
+#     exit 0
+# fi
+#
+#
+# mv swift-llvm llvm
+# mv swift-clang clang
+# mv swift-lldb lldb
+# mv swift-llbuild llbuild
+# mv swift-package-manager swiftpm
+# mv swift-cmark cmark
+
+
+# Set environment for apple/swift/utils/build-script
+PYTHON2="\
+    -DPYTHON_EXECUTABLE=/usr/local/Frameworks/Python.framework/Versions/2.7/bin/python2.7 \
+    -DPYTHON_INCLUDE_DIR=/usr/local/Frameworks/Python.framework/Versions/2.7/include/python2.7 \
+    -DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib \
+    "
+LIBXML2="\
+    -DLIBXML2_INCLUDE_DIR=/usr/local/opt/libxml2/include/libxml2 \
+    -DLIBXML2_LIBRARIES=/usr/local/opt/libxml2/lib/libxml2.dylib \
+    -DLIBXML2_XMLLINT_EXECUTABLE=/usr/local/opt/libxml2/bin/xmllint \
+    "
+
+CMAKEFLAG="\
+    -DCLANG_BUILD_EXAMPLES=ON \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_C_FLAGS_RELEASE='-DNDEBUG' \
+    -DCMAKE_CXX_FLAGS_RELEASE='-DNDEBUG' \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+    -DCMAKE_FIND_FRAMEWORK=LAST \
+    -DCMAKE_INSTALL_PREFIX=/opt/apple \
+    -DCMAKE_OSX_ARCHITECTURES="x86_64" \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET="10.11" \
+    -DLIBCLANG_BUILD_STATIC=ON \
+    -DLLDB_ALLOW_STATIC_BINDINGS=ON \
+    -DLLVM_BUILD_LLVM_C_DYLIB=OFN \
+    -DLLVM_BUILD_LLVM_DYLIB=ON \
+    -DLLVM_BUILD_RUNTIME=ON \
+    -DLLVM_BUILD_TESTS=OFF \
+    -DLLVM_BUILD_TOOLS=ON \
+    -DLLVM_CREATE_XCODE_TOOLCHAIN=ON \
+    -DLLVM_ENABLE_ASSERTIONS=OFF \
+    -DLLVM_ENABLE_CXX1Y=ON \
+    -DLLVM_ENABLE_DOXYGEN=OFF \
+    -DLLVM_ENABLE_SPHINX=OFF \
+    -DLLVM_OPTIMIZED_TABLEGEN=ON \
+    -DLLVM_PARALLEL_COMPILE_JOBS=9 \
+    -DLLVM_PARALLEL_LINK_JOBS=9 \
+    -DLLVM_TARGET_ARCH:STRING=host \
+    -DLLVM_TARGETS_TO_BUILD="X86" \
+    -DSWIFT_DARWIN_DEPLOYMENT_VERSION_OSX:STRING=10.9 \
+    -DSWIFT_RUNTIME_ENABLE_DTRACE=TRUE \
+    -DSWIFT_RUNTIME_ENABLE_LEAK_CHECKER=TRUE \
+    -DSWIFT_STDLIB_ASSERTIONS=FALSE \
+    -DSWIFT_STDLIB_BUILD_TYPE:STRING=Release \
+    -Wno-dev \
+    $(echo $PYTHON2) \
+    $(echo $LIBXML2) \
+    "
+
+if [[ $1 == 'flag' ]]; then
+    echo $CMAKEFLAG
+else
+        # --foundation \
+        # --libdispatch \
+    ./swift/utils/build-script \
+        --lldb \
+        --llbuild \
+        --swiftpm \
+        --export-compile-commands \
+        --release \
+        --no-assertions \
+        --jobs $nproc \
+        --extra-swift-args="
+        "
+fi

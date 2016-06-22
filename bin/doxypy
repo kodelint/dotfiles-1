@@ -1,0 +1,4 @@
+#!/bin/bash
+# http://chrischoy.github.io/blog/notes/doxygen-and-doxypy/
+
+python3 -m doxypypy.doxypypy -a -c $1
