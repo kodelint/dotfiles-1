@@ -41,16 +41,22 @@ else
 fi
 
 # define Python Frameworks path
-PYTHON_PREFIX=$(/usr/local/bin/python"$3"-config --prefix)
-PYTHON_SELECT_VERSION=$(/usr/local/bin/python"$3"-config --prefix | awk -F / '{print $NF}')
-
-PYTHON_EXECUTABLE=$(which python"$3")
-PYTHON_INCLUDE_DIR=$PYTHON_PREFIX/include/python$PYTHON_SELECT_VERSION
-if [[ $3 == 3 ]]; then
-  PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR$(python$3-config --abiflags)
+if [[ $3 != "System" ]]; then
+  PYTHON_CONFIG=python$3-config
+  PYTHON_EXECUTABLE=$(which python"$3")
+else
+  PYTHON_CONFIG=/usr/bin/python-config
+  PYTHON_EXECUTABLE=/usr/bin/python
 fi
-PYTHON_LIBRARY=$PYTHON_PREFIX/lib/libpython$PYTHON_SELECT_VERSION.dylib
+PYTHON_INCLUDE_DIR=$(find $("$PYTHON_CONFIG" --prefix)/include -name 'python*' -type d -maxdepth 1)
+PYTHON_LIBRARY=$(find $("$PYTHON_CONFIG" --prefix)/lib -name 'libpython*' -maxdepth 1)
 
+ENVIRONMENT_VARIABLE="\
+\$SRC_DIR:			$1
+    \$DST_DIR:			$DST_DIR
+    \$PYTHON_EXECUTABLE:		$PYTHON_EXECUTABLE
+    \$PYTHON_INCLUDE_DIR:	$PYTHON_INCLUDE_DIR
+    \$PYTHON_LIBRARY:		$PYTHON_LIBRARY"
 
 # Usage
 usage() {
@@ -72,13 +78,8 @@ Unix Makefiles
     Sublime Text 2 - Unix Makefiles"
   USAGE_PYTHON_VERSION="\
 2
-    3"
-  USAGE_ENVIRONMENT_VARIABLE="\
-\$SRC_DIR		$SRC_DIR
-    \$DST_DIR		$DST_DIR
-    \$PYTHON_EXECUTABLE	$PYTHON_EXECUTABLE
-    \$PYTHON_INCLUDE_DIR	$PYTHON_INCLUDE_DIR
-    \$PYTHON_LIBRARY	$PYTHON_LIBRARY"
+    3
+    Sytem"
 
   echo "error: No build tool as arguments"
   echo ""
@@ -91,7 +92,7 @@ Unix Makefiles
   echo "    $USAGE_PYTHON_VERSION"
   echo ""
   echo "Environment variable:"
-  echo "    $USAGE_ENVIRONMENT_VARIABLE"
+  echo "    $ENVIRONMENT_VARIABLE"
   exit 1
 }
 
@@ -99,7 +100,6 @@ Unix Makefiles
 if [[ ! -n $3 ]]; then
   usage
 fi
-
 
 # define dependencies packages
 PYTHON="\
@@ -125,6 +125,14 @@ fi
 #   export CC="ccache $CC"
 #   export CXX="ccache $CXX"
 # fi
+
+echo "CMake Generators"
+echo "    $2"
+echo "Python Version"
+echo "    $3"
+echo "Environment variable:"
+echo "    $ENVIRONMENT_VARIABLE"
+echo ""
 
 command cmake $1 -G $2 \
   \
@@ -195,13 +203,13 @@ command cmake $1 -G $2 \
   \
   -Wno-dev \
   \
-  $(echo $PYTHON) \
+  $(echo $LIBFFI) \
   $(echo $LIBXML2) \
+  $(echo $PYTHON) \
   \
   -DLLVM_ENABLE_LTO:STRING=OFF \
   -DLLVM_TOOL_LTO_BUILD:BOOL=OFF
   # -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD:STRING= \
-  # $(echo $LIBFFI) \
   # \
   # -DC_INCLUDE_DIRS:STRING="$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/include:/usr/include" \
 
