@@ -78,7 +78,11 @@ fg[237]=$(printf "\x1b[38;2;58;58;58m")       # $FG[237]
 # RPR_SHOW_HOST=(true, false) - show host in rhs prompt
 # RPR_SHOW_GIT=(true, false) - show git status in rhs prompt
 
-GIT_COMMAND="/usr/local/bin/git"
+if [[ -f "/usr/local/bin/git" ]]; then
+  GIT_COMMAND="/usr/local/bin/git"
+else
+  GIT_COMMAND="/usr/bin/git"
+fi
 PROMPT_CACHEFILE="${HOME}/.cache/zsh/zsh_prompt"
 
 # Current directory, truncated to 3 path elements (or 4 when one of them is "~")
@@ -259,9 +263,9 @@ function git_prompt_string() {
 function DOCKER_MACHINE_STATUS() {
     if [[ -n $DOCKER_MACHINE_NAME ]]; then
         # Set asynchronously and dynamically
-        echo -n "Docker:%{$fg[purple]%}${DOCKER_MACHINE_NAME}%{$reset_color%} "
+        echo -n "Docker:%{$fg[purple]%} ${DOCKER_MACHINE_NAME}%{$reset_color%} "
     else
-        echo -n ""
+        echo -n "Docker:%{$fg[purple]%} native%{$reset_color%} "
     fi
 }
 
