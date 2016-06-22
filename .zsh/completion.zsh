@@ -12,9 +12,12 @@ if [[ -d "$functionsd" ]] {
     autoload -U $functionsd/*(:t)
 }
 
-# load completions system
-zmodload -i zsh/complist
+compdef _gnu_generic \
+  ctags \
+  dlv
 
+# Load completions system
+zmodload -i zsh/complist
 
 setopt ALWAYS_TO_END       # Move cursor to the end of a completed word
 setopt AUTO_LIST           # Automatically list choices on ambiguous completion
@@ -37,7 +40,7 @@ zstyle ':completion:*'    verbose yes
 
 # Group matches and describe format
 zstyle ':completion:*'                  format ' %F{yellow}-- %d --%f'
-zstyle ':completion:*:*:*:*:*'          menu select=1 # for all completions: menuselection
+zstyle ':completion:*:*:*:*:*'          menu select=2 # for all completions: menuselection
 zstyle ':completion:*:default'          list-prompt '%S%M matches%s'
 zstyle ':completion:*:corrections'      format ' %F{green}-- %d (errors: %e) --%f'
 zstyle ':completion:*:descriptions'     format ' %F{yellow}-- %d --%f'
@@ -100,13 +103,19 @@ zstyle -e ':completion:*:hosts' hosts 'reply=(
 
 
 # Ignore patterns
+#
+# Vcs
+# Compiler
+# Zsh
+# OS X
+# tags
+# Python byte-compile & cache
+# visual studio code
+# delve debug byinary
 zstyle ':completion:*:*files' ignored-patterns \
-  '.git' \
+  '.git' '.hg' '.svn' \
   \
-  '*?.aux' \
-  '*?.bbl' \
-  '*?.blg' \
-  '*?.out' \
+  '*?.aux' '*?.out' \
   '*?.toc' \
   '*?.snm' \
   '*?.nav' \
@@ -116,15 +125,10 @@ zstyle ':completion:*:*files' ignored-patterns \
   \
   '*.DS_Store' \
   '*tags' \
-  '.ycm_extra_conf.pyc' \
-  '*__pycache__'
-
-# nvim: binary is '*\~'
-# zstyle ':completion:*:(n|nvim):*:*files' ignored-patterns \
-#   '*?_test.go'
-# TODO: Not works
-# zstyle ':completion:*' ignored-patterns '__pycache__/'
-
+  '*?.pyc' \
+  '__pycache__' \
+  '.vscode' \
+  'debug'
 
 # Don't complete uninteresting users
 zstyle ':completion:*:*:*:users' ignored-patterns \
@@ -167,12 +171,5 @@ zstyle ':completion:*:ssh:*' group-order users hosts-domain hosts-host users hos
 zstyle ':completion:*:(ssh|scp|rsync):*:hosts-host' ignored-patterns '*(.|:)*' loopback ip6-loopback localhost ip6-localhost broadcasthost
 zstyle ':completion:*:(ssh|scp|rsync):*:hosts-domain' ignored-patterns '<->.<->.<->.<->' '^[-[:alnum:]]##(.[-[:alnum:]]##)##' '*@*'
 zstyle ':completion:*:(ssh|scp|rsync):*:hosts-ipaddr' ignored-patterns '^(<->.<->.<->.<->|(|::)([[:xdigit:].]##:(#c,2))##(|%*))' '127.0.0.<->' '255.255.255.255' '::1' 'fe80::*'
-
-# vi: advanced completion (e.g. tex and rc files first)
-zstyle ':completion::*:nvim:*:*' file-patterns 'Makefile|*(rc|log)|*.(php|tex|bib|sql|zsh|ini|sh|vim|rb|sh|js|tpl|csv|rdf|txt|phtml|tex|py|n3):vi-files:vim\ likes\ these\ files *~(Makefile|*(rc|log)|*.(log|rc|php|tex|bib|sql|zsh|ini|sh|vim|rb|sh|js|tpl|csv|rdf|txt|phtml|tex|py|n3)):all-files:other\ files'
-
-zstyle :compinstall filename '~/.zshrc'
-
-autoload -Uz compinit && compinit
 # }}}
 ###################################################################################################
