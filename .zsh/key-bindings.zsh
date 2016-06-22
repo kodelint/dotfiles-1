@@ -80,6 +80,27 @@ bindkey '\C-x\C-e' edit-command-line
 # file rename magick
 bindkey "^[m" copy-prev-shell-word
 
+
+function edit-command-line() {
+  tmpfile=$(mktemp -t zsheditXXXXXXXX.sh)
+  print -R - "$PREBUFFER$BUFFER" >> $tmpfile
+  editor=${VISUAL:-${EDITOR:-vi}}
+  args=()
+  if [[ "$editor" =~ vim ]]; then
+    pb=${#PREBUFFER}
+    (( b=pb+CURSOR ))
+    args+=("-c" ":call cursor(byte2line($b), ($b - $pb) + 1)")
+  fi
+  args+=($tmpfile)
+  exec </dev/tty
+  $editor ${args[@]}
+  print -z - "$(<$tmpfile)"
+  command rm -f $tmpfile
+  zle send-break
+}
+bindkey '^F' edit-command-line
+zle -N edit-command-line
+
 #
 # Functions
 #
