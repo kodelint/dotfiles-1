@@ -7,6 +7,3 @@
 [submodule ".zsh/plugins/zsh-users/zsh-syntax-highlighting"]
 	path = .zsh/plugins/zsh-users/zsh-syntax-highlighting
 	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
-[submodule ".zsh/plugins/o-pikozh/xdg-basedirs"]
-	path = .zsh/plugins/o-pikozh/xdg-basedirs
-	url = https://github.com/o-pikozh/xdg-basedirs.git
