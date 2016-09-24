@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+if ! hash ccache; then
+  echo 'required ccache'; exit 1
+fi
+
+make CC=/usr/local/libexec/ccache/clang CXX=/usr/local/libexec/ccache/clang++ "$@"
