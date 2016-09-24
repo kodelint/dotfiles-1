@@ -7,7 +7,7 @@
 #  - Adapted from: https://github.com/mooz/percol#zsh-history-search
 #  - https://gist.github.com/jimeh/7d94f1000cfc9cba2893
 function peco_select_history() {
-  BUFFER=$(fc -l -n 1| tac | peco --query "$LBUFFER")
+  BUFFER=$(fc -l -n 1| gtac | peco --query "$LBUFFER")
   CURSOR=$#BUFFER  # move cursor
   zle clear-screen # refresh
 }
@@ -17,7 +17,7 @@ bindkey '^z^r' history-incremental-search-backward
 
 # ghq
 #   - http://weblog.bulknews.net/post/89635306479/ghq-peco-percol
-function peco-ghq() {
+function peco_ghq() {
     local SELECTED_DIR=$(GIT_CONFIG=~/.config/ghq/.gitconfig ghq list -p | peco)
     if [ -n "$SELECTED_DIR" ]; then
         BUFFER="cd ${SELECTED_DIR}"
@@ -25,14 +25,19 @@ function peco-ghq() {
     fi
     zle clear-screen
 }
-zle -N peco-ghq
-bindkey '^q' peco-ghq
+zle -N peco_ghq
+bindkey '^q' peco_ghq
 
 # ssh
-function peco-ssh() {
-  ssh $(awk 'tolower($1)=="host" {for (i=2; i<=NF; i++) {if ($i !~ "[*?]") {print $i}}}' ~/.ssh/config | grep -v '127.0.0.1' | sort | peco)
+function peco_ssh() {
+  # ssh $(awk 'tolower($1)=="host" {for (i=2; i<=NF; i++) {if ($i !~ "[*?]") {print $i}}}' ~/.ssh/config | grep -v '127.0.0.1' | sort | peco)
+  BUFFER="ssh $(awk 'tolower($1)=="host" {for (i=2; i<=NF; i++) {if ($i !~ "[*?]") {print $i}}}' ~/.ssh/config | grep -v '127.0.0.1' | sort | peco --query "$LBUFFER")"
+  CURSOR=$#BUFFER  # move cursor
+  zle clear-screen # refresh
 }
-alias peco_ssh='peco-ssh'
+zle -N peco_ssh
+bindkey '^s' peco_ssh
+# alias peco_ssh='peco-ssh'
 
 # peco + godoc
 # http://syohex.hatenablog.com/entry/20140620/1403257070
