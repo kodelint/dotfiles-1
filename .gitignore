@@ -44,3 +44,4 @@ Temporary Items
 .config/dlv/.dbg_history
 .config/codesign/*.cer
 .config/codesign/*.key
+.config/conda/envs
