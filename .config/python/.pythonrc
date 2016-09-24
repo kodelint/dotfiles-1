@@ -1,0 +1,38 @@
+def _init():
+    import atexit
+    import os
+    import rlcompleter
+    import sys
+
+    # -------
+    # Python version
+    # -------
+    _ver = sys.version_info
+    is_py2, is_py3 = (_ver[0] == 2), (_ver[0] == 3)
+
+    readline = rlcompleter.readline
+
+    # change autocomplete to tab
+    readline.parse_and_bind("tab: complete")
+
+    historyPath = os.path.expanduser("~/.history/python3_history")
+
+    def save_history(historyPath=historyPath):
+        readline.write_history_file(historyPath)
+
+    if os.path.exists(historyPath):
+        readline.read_history_file(historyPath)
+
+    atexit.register(save_history)
+
+    try:
+        if is_py2:
+            import readline
+            import rlcompleter2
+            readline.parse_and_bind("tab: complete")
+            rlcompleter2.setup()
+    except ImportError:
+        print("Module rlcompleter not available")
+
+# _init()
+# del _init
