@@ -38,5 +38,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# secret tokens
+
+# ignore
 .config/hub
+.config/dlv/.dbg_history
