@@ -1,0 +1,19 @@
+[preset: release]
+release
+no-assertions
+jobs=9
+lldb
+llbuild
+swiftpm
+foundation
+libdispatch
+export-compile-commands
+install-prefix=/opt/swift
+skip-build-benchmarks
+
+[preset: swift]
+release
+no-assertions
+foundation
+libdispatch
+export-compile-commands
