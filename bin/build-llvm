@@ -9,7 +9,7 @@ set -e
 #   - ninja
 #
 # Usage:
-#   build-llvm.bash <LLVM SOURCES ROOT> <CMAKE GENERATORS> <PYTHON VERSION> [DIST_DIR]
+#   build-llvm <LLVM SOURCES ROOT> <CMAKE GENERATORS> <PYTHON VERSION> [DIST_DIR]
 #
 #   CMake Generators: Unix Makefiles, Ninja, Xcode (Recommend is Ninja)
 #
@@ -25,13 +25,109 @@ set -e
 #   - llvm 3.8 currently requires Xcode 7(OS X 10.10 or 10.11) Build the new tsan support in compiler-rt or using
 #     - -DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON
 #     - Ref: https://groups.google.com/forum/m/#!topic/llvm-dev/Uxb1o83qTMI
+#
 #   - Building with Clan Address Sanitizer(ASan)
 #     - https://trac.webkit.org/wiki/ASanWebKit
+#
 #   - Not build llvm-dsymutil
 #     - When LLVM_ENABLE_LTO, link for llvm-dsymutil too slow...
 #     - github.com/apple/apple-llvm instead of
-#     - -DLLVM_TOOL_DSYMUTIL_BUILD:BOOL=OFF
+#     - Use -DLLVM_TOOL_DSYMUTIL_BUILD:BOOL=OFF
+#
+#   - Why build static libraries by default
+#     - LLVM guys recommend static libraries for common users and shared - for developers.
+#     - https://github.com/Homebrew/homebrew-core/issues/3087#issuecomment-233407092
+#
+#   - libcxx(abi) rpath issue
+#     - for libcxx(abi) rpath issue: https://github.com/Homebrew/homebrew-core/issues/3087#issuecomment-234080878
 
+# Warning for have not '*build*' in current dir name
+if ! [[ $(readlink -f .) == *build* ]]; then
+  echo "Current directory have not *build* name."; exit 1
+elif ! $(hash clang); then
+  echo "Not found 'clang'."; exit 1
+elif ! $(hash cmake); then
+  echo "Not found 'cmake'."; exit 1
+fi
+
+
+CCACHE=''
+if hash ccache && [[ -d /usr/local/opt/ccache/libexec ]]; then
+  CCACHE="-DLLVM_CCACHE_BUILD:BOOL=ON \
+    -DLLVM_CCACHE_DIR:STRING=$HOME/.ccache \
+    -DLLVM_CCACHE_SIZE:STRING=5G"
+fi
+
+
+if hash sysctl && [[ $(uname -s) == 'Darwin' ]]; then
+  JOBS=$(sysctl -n hw.ncpu)
+elif hash nproc; then
+  JOBS=$(nproc)
+else
+  JOBS=8
+fi
+
+
+# define Python Frameworks path
+if [[ $3 = "intelpython3" ]]; then
+  PYTHON_CONFIG="/opt/intel/$3/bin/python3-config"
+  PYTHON_EXECUTABLE="/opt/intel/$3/bin/python3"
+elif [[ $3 = "intelpython2" ]]; then
+  PYTHON_CONFIG="/opt/intel/$3/bin/python2-config"
+  PYTHON_EXECUTABLE="/opt/intel/$3/bin/python2"
+elif [[ $3 = "System" ]]; then
+  PYTHON_CONFIG='/usr/bin/python-config'
+  PYTHON_EXECUTABLE='/usr/bin/python'
+else
+  if [[ -n "/usr/local/opt/python$3" ]]; then
+    PYTHON_CONFIG="/usr/local/bin/python$3-config"
+    PYTHON_EXECUTABLE='/usr/local/bin/python'
+  fi
+fi
+PYTHON_INCLUDE_DIR=$(find $("$PYTHON_CONFIG" --prefix)/include -name 'python*' -type d -maxdepth 1)
+PYTHON_LIBRARY=$(find $("$PYTHON_CONFIG" --prefix)/lib -name 'libpython*' -maxdepth 1)
+
+
+# define dependencies packages
+if hash "$PYTHON_CONFIG"; then
+  PYTHON="\
+    -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE \
+    -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR \
+    -DPYTHON_LIBRARY=$PYTHON_LIBRARY"
+else
+  echo 'Not support Python bindings'
+fi
+
+if hash xml2-config; then
+  LIBXML2="\
+    -DLIBXML2_INCLUDE_DIR="$(xml2-config --prefix)/include/libxml2" \
+    -DLIBXML2_LIBRARIES="$(xml2-config --prefix)/lib/libxml2.dylib" \
+    -DLIBXML2_XMLLINT_EXECUTABLE="$(xml2-config --prefix)/bin/xmllint""
+else
+  echo 'Not support libxml2'
+fi
+
+if pkg-config libffi; then
+  LIBFFI="\
+    -DFFI_INCLUDE_DIR="$(pkg-config libffi --variable=includedir)" \
+    -DFFI_LIBRARY_DIR="$(pkg-config libffi --variable=libdir)""
+else
+  echo 'Not support libffi'
+fi
+
+if test -n /usr/local/opt/ncurses; then
+  CURSES_BIN="/usr/local/opt/ncurses/bin/ncurses6-config"
+  CURSES="\
+    -DCURSES_INCLUDE_PATH="$($CURSES_BIN --includedir)" \
+    -DCURSES_CURSES_LIBRARY="$($CURSES_BIN --libdir)/libcurses.dylib" \
+    -DCURSES_FORM_LIBRARY="$($CURSES_BIN --libdir)/libform.dylib" \
+    -DCURSES_NCURSES_LIBRARY="$($CURSES_BIN --libdir)/libncurses.dylib" \
+    -DCURSES_PANEL_LIBRARY="$($CURSES_BIN --libdir)/libpanel.dylib""
+else
+  echo 'Not support ncurses'
+fi
+
+SRC_DIR=$1
 
 # define install directory
 if [[ $4 ]]; then
@@ -40,23 +136,17 @@ else
   DST_DIR=/opt/llvm
 fi
 
-# define Python Frameworks path
-if [[ $3 != "System" ]]; then
-  PYTHON_CONFIG=python$3-config
-  PYTHON_EXECUTABLE=$(which python"$3")
-else
-  PYTHON_CONFIG=/usr/bin/python-config
-  PYTHON_EXECUTABLE=/usr/bin/python
-fi
-PYTHON_INCLUDE_DIR=$(find $("$PYTHON_CONFIG" --prefix)/include -name 'python*' -type d -maxdepth 1)
-PYTHON_LIBRARY=$(find $("$PYTHON_CONFIG" --prefix)/lib -name 'libpython*' -maxdepth 1)
 
+# define bindings packages environment variable
 ENVIRONMENT_VARIABLE="\
-\$SRC_DIR:			$1
+\$SRC_DIR:			$SRC_DIR
     \$DST_DIR:			$DST_DIR
-    \$PYTHON_EXECUTABLE:		$PYTHON_EXECUTABLE
-    \$PYTHON_INCLUDE_DIR:	$PYTHON_INCLUDE_DIR
-    \$PYTHON_LIBRARY:		$PYTHON_LIBRARY"
+
+Custom dependency packages:
+  $PYTHON
+  $LIBXML2
+  $LIBFFI
+  $CURSES"
 
 # Usage
 usage() {
@@ -92,61 +182,37 @@ Unix Makefiles
   echo "    $USAGE_PYTHON_VERSION"
   echo ""
   echo "Environment variable:"
-  echo "    $ENVIRONMENT_VARIABLE"
-  exit 1
+  echo "    $ENVIRONMENT_VARIABLE" | sed 's/-D/\n    /g' | sed 's/=/:\t/g'
 }
 
-# Check len(args)
+# Check len(args) for usage()
 if [[ ! -n $3 ]]; then
   usage
-fi
-
-# define dependencies packages
-PYTHON="\
-  -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE \
-  -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR \
-  -DPYTHON_LIBRARY=$PYTHON_LIBRARY"
-LIBXML2="\
-  -DLIBXML2_INCLUDE_DIR=/usr/local/opt/libxml2/include/libxml2 \
-  -DLIBXML2_LIBRARIES=/usr/local/opt/libxml2/lib/libxml2.dylib \
-  -DLIBXML2_XMLLINT_EXECUTABLE=/usr/local/opt/libxml2/bin/xmllint"
-LIBFFI="\
-  -DFFI_INCLUDE_DIR=/usr/local/opt/libffi/lib/libffi-3.0.13/include \
-  -DFFI_LIBRARY_DIR=/usr/local/opt/libffi/lib/libffi.dylib"
-
-
-# Warning for have not '*build*' in current dir name
-if ! [[ $(readlink -f .) == *build* ]]; then
-  echo "Current dir needs build* name"
   exit 1
 fi
 
-# if hash ccache 2>/dev/null; then
-#   export CC="ccache $CC"
-#   export CXX="ccache $CXX"
-# fi
 
 echo "CMake Generators"
 echo "    $2"
 echo "Python Version"
 echo "    $3"
 echo "Environment variable:"
-echo "    $ENVIRONMENT_VARIABLE"
+echo "    $ENVIRONMENT_VARIABLE" | sed 's/-D/\n    /g' | sed 's/=/:\t/g'
 echo ""
 
-command cmake $1 -G $2 \
-  \
+command cmake $1 -G "$2" \
   -DBUILD_SHARED_LIBS:BOOL=OFF \
   \
   -DCMAKE_ASM_FLAGS:STRING='-march=native' \
   -DCMAKE_BUILD_TYPE:STRING=Release \
-  -DCMAKE_CXX_FLAGS:STRING='-march=native' \
   -DCMAKE_C_FLAGS:STRING='-march=native' \
+  -DCMAKE_CXX_FLAGS:STRING='-march=native' \
   -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=ON \
   -DCMAKE_FIND_FRAMEWORK=LAST \
   -DCMAKE_INSTALL_PREFIX:PATH=$DST_DIR \
+  -DCMAKE_MACOSX_RPATH:STRING=0 \
   -DCMAKE_OSX_ARCHITECTURES:STRING=x86_64 \
-  -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=10.11 \
+  -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=10.12 \
   -DCMAKE_OSX_SYSROOT:STRING="$(xcrun --show-sdk-path)" \
   -DCMAKE_SKIP_INSTALL_RPATH:BOOL=NO \
   -DCMAKE_SKIP_RPATH:BOOL=NO \
@@ -155,72 +221,62 @@ command cmake $1 -G $2 \
   -DCLANG_INCLUDE_DOCS:BOOL=ON \
   -DCLANG_INCLUDE_TESTS:BOOL=ON \
   \
-  -DCURSES_CURSES_LIBRARY:FILEPATH=/usr/local/lib/libcurses.dylib \
-  -DCURSES_FORM_LIBRARY:FILEPATH=/usr/local/lib/libform.dylib \
-  -DCURSES_INCLUDE_PATH:PATH=/usr/local/include \
-  -DCURSES_NCURSES_LIBRARY:FILEPATH=/usr/local/lib/libncurses.dylib \
-  -DCURSES_PANEL_LIBRARY:FILEPATH=/usr/local/lib/libpanel.dylib \
-  \
   -DLIBCLANG_BUILD_STATIC:BOOL=ON \
+  \
+  -DLIBCXXABI_ENABLE_ASSERTIONS:BOOL=OFF \
+  -DLIBCXXABI_USE_LLVM_UNWINDER:BOOL=ON \
+  \
   -DLIBCXX_ABI_UNSTABLE:BOOL=ON \
   -DLIBCXX_CONFIGURE_IDE:BOOL=ON \
-  -DLIBCXXABI_ENABLE_ASSERTIONS:BOOL=OFF \
-  -DLIBCXXABI_SYSROOT:STRING="$(xcrun --show-sdk-path)" \
-  -DLIBCXXABI_USE_LLVM_UNWINDER:BOOL=OFF \
-  \
   -DLIBCXX_ENABLE_ASSERTIONS:BOOL=OFF \
   -DLIBCXX_OVERRIDE_DARWIN_INSTALL:BOOL=ON \
-  -DLIBCXX_SYSROOT:STRING="$(xcrun --show-sdk-path)" \
   \
-  -DLIBOMP_OSX_ARCHITECTURES:STRING=x86_64 \
+  -DLIBOMP_ARCH:STRING="x86_64" \
+  -DLIBOMP_ENABLE_SHARED:BOOL=ON \
+  -DLIBOMP_OSX_ARCHITECTURES:STRING="x86_64" \
   -DLIBOMP_USE_HWLOC:BOOL=ON \
   \
   -DLLDB_EXPORT_ALL_SYMBOLS:BOOL=ON \
   \
+  -DLIBCXXABI_USE_LLVM_UNWINDER:BOOL=ON \
   -DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON \
   -DLLVM_BUILD_GLOBAL_ISEL:BOOL=ON \
   -DLLVM_BUILD_LLVM_C_DYLIB:BOOL=ON \
-  -DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
+  -DLLVM_BUILD_LLVM_DYLIB:BOOL=OFF \
+  -DLLVM_BUILD_TESTS:BOOL=OFF \
   -DLLVM_CREATE_XCODE_TOOLCHAIN:BOOL=OFF \
   -DLLVM_ENABLE_ASSERTIONS:BOOL=OFF \
   -DLLVM_ENABLE_CXX1Y:BOOL=ON \
-  -DLLVM_ENABLE_FFI:BOOL=OFF \
+  -DLLVM_ENABLE_EH:BOOL=ON \
+  -DLLVM_ENABLE_FFI:BOOL=ON \
   -DLLVM_ENABLE_LIBCXX:BOOL=ON \
-  -DLLVM_ENABLE_LIBCXXABI:BOOL=ON \
-  -DLLVM_ENABLE_SPHINX:BOOL=OFF \
-  -DLLVM_EXTERNALIZE_DEBUGINFO:BOOL=OFF \
+  -DLLVM_ENABLE_RTTI:BOOL=ON \
+  -DLLVM_ENABLE_SPHINX:BOOL=ON \
+  -DLLVM_EXTERNALIZE_DEBUGINFO:BOOL=ON \
   -DLLVM_INCLUDE_DOCS:BOOL=ON \
+  -DLLVM_INSTALL_UTILS:BOOL=ON \
   -DLLVM_LINK_LLVM_DYLIB:BOOL=OFF \
   -DLLVM_OPTIMIZED_TABLEGEN:BOOL=ON \
-  -DLLVM_PARALLEL_COMPILE_JOBS:STRING=8 \
-  -DLLVM_PARALLEL_LINK_JOBS:STRING=8 \
-  -DLLVM_TARGET_ARCH:STRING=host \
-  -DLLVM_TARGETS_TO_BUILD:STRING=X86 \
+  -DLLVM_PARALLEL_COMPILE_JOBS:STRING=$JOBS \
+  -DLLVM_PARALLEL_LINK_JOBS:STRING=$JOBS \
+  -DLLVM_TARGET_ARCH:STRING="host" \
+  -DLLVM_TARGETS_TO_BUILD:STRING="X86" \
   -DLLVM_TOOL_DSYMUTIL_BUILD:BOOL=ON \
-  -DLLVM_USE_SPLIT_DWARF:BOOL=OFF \
+  -DLLVM_USE_SPLIT_DWARF:BOOL=ON \
   \
+  -DLINK_POLLY_INTO_TOOLS:BOOL=ON \
   -DPOLLY_ENABLE_GPGPU_CODEGEN:BOOL=ON \
+  -DPOLLY_ENABLE_GPGPU_CODEGEN:BOOL=ON \
+  -DWITH_POLLY:BOOL=ON \
   \
-  -Wno-dev \
+  -DLLVM_ENABLE_LTO:STRING=OFF \
+  -DLLVM_TOOL_LTO_BUILD:BOOL=OFF \
   \
+  $(echo $CCACHE) \
+  \
+  $(echo $CURSES) \
   $(echo $LIBFFI) \
   $(echo $LIBXML2) \
   $(echo $PYTHON) \
   \
-  -DLLVM_ENABLE_LTO:STRING=OFF \
-  -DLLVM_TOOL_LTO_BUILD:BOOL=OFF
-  # -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD:STRING= \
-  # \
-  # -DC_INCLUDE_DIRS:STRING="$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/include:/usr/include" \
-
-
-# Disable sanitizer (workaround)
-#   - clang: error: unsupported argument 'all' to option 'fno-sanitize='
-if hash ag 2>/dev/null; then
-  ag -l "  -fno-sanitize=all" | xargs sed -i 's/  -fno-sanitize=all//'
-elif hash grep 2>/dev/null; then
-  grep -l "  -fno-sanitize=all" $PWD | xargs sed -i 's/  -fno-sanitize=all//'
-else
-  echo "Disable sanitizer required "
-  exit 1
-fi
+  -Wno-dev
