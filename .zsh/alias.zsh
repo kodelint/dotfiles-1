@@ -2,9 +2,12 @@
 # Alias {{{
 #
 
+# macOS specific commands
+alias log='command log'
+
 # Disable correction.
 alias ack='nocorrect ack'
-# alias cd='nocorrect cd'
+alias bower='nocorrect bower'
 alias cp='nocorrect cp'
 alias ebuild='nocorrect ebuild'
 alias gcc='nocorrect gcc'
@@ -19,7 +22,6 @@ alias mysql='nocorrect mysql'
 alias rm='nocorrect rm'
 
 # Disable globbing.
-alias bower='noglob bower'
 alias fc='noglob fc'
 alias find='noglob find'
 alias ftp='noglob ftp'
@@ -41,8 +43,6 @@ alias mv="${aliases[mv]:-mv} -i"
 alias po='popd'
 alias pu='pushd'
 alias rm="${aliases[rm]:-rm} -i"
-alias type='type -a'
-alias which='which -a'
 
 # }}}
 ####################################################################################################
@@ -51,10 +51,9 @@ alias which='which -a'
 #
 
 # Base ls command
-alias ls='ls --group-directories-first \
-             --color=auto \
-             --ignore=.DS_Store \
-             --ignore=.ycm_extra_conf.pyc'
+alias ls='gls --group-directories-first \
+              --color=auto \
+              --ignore=.DS_Store'
 
 alias  l='ls -AF'                          # Lists hidden files, indicator
 alias ll='ls -lhF'                         # Lists human readable sizes, show indicator
@@ -69,8 +68,7 @@ alias lu='lt -u'                           # Lists sorted by date, most recent l
 alias l.='ls -ld .[a-zA-Z]*'               # Lists dotfiles only
 
 alias sl='ls'                              # I often screw this up
-alias al='la'                              # misstype
-alias wh='which'
+alias al='la'                              # typo
 
 # }}}
 ####################################################################################################
@@ -102,9 +100,6 @@ else
   fi
 fi
 
-# alias pbc='pbcopy'
-# alias pbp='pbpaste'
-
 
 # Resource Usage
 alias df='df -kh'
@@ -131,25 +126,38 @@ fi
 
 # Python
 alias nose='nosetests'
-# if [[ -d "/opt/intel/intelpython27" ]]; then
-if [[ $(command type python | awk '{print $3}') == "/opt/intel/intelpython27/bin/python" ]]; then
-  alias python='/opt/intel/intelpython27/bin/python'
-  alias pip2='/opt/intel/intelpython27/bin/pip2 --disable-pip-version-check'
-fi
-# if [[ -d "/opt/intel/intelpython35" ]]; then
-if [[ $(command type python3 | awk '{print $3}') == "/opt/intel/intelpython35/bin/python3" ]]; then
-  alias python='/opt/intel/intelpython35/bin/python3'
-  alias python3='/opt/intel/intelpython35/bin/python3'
-  alias pip='/opt/intel/intelpython35/bin/pip3 --disable-pip-version-check'
-  alias pip3='/opt/intel/intelpython35/bin/pip3 --disable-pip-version-check'
-else
-  alias python='python3'
-  alias pip='pip3'
-fi
+# if [[ -d "/opt/intel/intelpython2" ]]; then
+# if [[ $(command type python | awk '{print $3}') == "/opt/intel/intelpython2/bin/python" ]]; then
+#   alias py='/opt/intel/intelpython2/bin/python'
+#   alias python='/opt/intel/intelpython2/bin/python'
+#   alias pip2='/opt/intel/intelpython2/bin/pip2 --disable-pip-version-check'
+# fi
+# # if [[ -d "/opt/intel/intelpython3" ]]; then
+# if [[ $(command type python3 | awk '{print $3}') == "/opt/intel/intelpython3/bin/python3" ]]; then
+#   alias py='/opt/intel/intelpython3/bin/python3'
+#   alias py3='/opt/intel/intelpython3/bin/python3'
+#   alias python='/opt/intel/intelpython3/bin/python3'
+#   alias python3='/opt/intel/intelpython3/bin/python3'
+#   alias pip='/opt/intel/intelpython3/bin/pip3 --disable-pip-version-check'
+#   alias pip3='/opt/intel/intelpython3/bin/pip3 --disable-pip-version-check'
+# else
+#   alias py='python3'
+#   alias py2='python2'
+#   alias py3='python3'
+#   alias python='python3'
+#   alias pip='pip3'
+# fi
+# alias py='python3'
+# alias py2='python2'
+# alias py3='python3'
+# alias python='python3'
+# alias pypy='pypy3'
+alias pip_pypy='pip3.3'
 
 # Build
 alias mk="make"
 alias nj="ninja"
+alias cmake='cmake -G Ninja'
 
 # Unix commands
 alias pss="ps | awk 'NR>1 {print}' | grep -v awk | grep -v sort | sort"
@@ -161,43 +169,26 @@ alias path='echo -n `pwd` | pbcopy'
 alias jt='jtool'
 alias prox='procexp'
 
+
+# hypervisor
+alias mkube='minikube'
+
+
 # Tool
-alias aria='aria2c'
+alias ag='ag --hidden' # search hidden file by default
 alias ccat='ccat --bg=dark'
-alias diff='git diff'
+# alias diff='git diff'
 alias get='ghq get -u'
 alias htop='sudo htop'
-alias ipython='ipython --matplotlib=auto'
 alias irssi='TERM=screen-256color irssi'
 alias p='pt'
 alias juc='jupyter console'
 alias pg='pgrep'
 alias pk='pkill'
 alias pbc='command pbcopy'
+alias pbp='command pbpaste'
 alias t='gotail'
 
 # config file alias
 alias nru="nvim -c 'call dein#clear_state() | call dein#clear_cache()' -c 'UpdateRemotePlugins' -c 'q' >/dev/null; cat ${HOME}/.nvim/.init.vim-rplugin\~"
 alias tm="${EDITOR} ${HOME}/.tmux.conf"
-
-# brew
-alias brew='CURL_CA_BUNDLE= brew'
-alias brwif='brew info'
-alias brews='brew list -1'
-alias brwC='brew cleanup --force'
-alias brwU='brew uninstall'
-alias brwc='brew cleanup'
-alias brwi='brew install'
-alias brwl='brew list'
-alias brws='brew search'
-alias brwu='brew update && brew upgrade --all'
-alias brwx='brew remove'
-alias bubc='brew upgrade && brew cleanup'
-alias bubo='brew update && brew outdated'
-alias cask='brew cask'
-alias caskC='brew cask cleanup'
-alias caskc='brew cask cleanup --outdated'
-alias caski='brew cask install'
-alias caskl='brew cask list'
-alias casks='brew cask search'
-alias caskx='brew cask uninstall'
