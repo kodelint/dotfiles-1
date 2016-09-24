@@ -92,11 +92,11 @@ alias gCT='gCt $(gCl)'
 # }}}
 ###################################################################################################
 
-# (di)ff {{{
+# d(i)ff {{{
 
-alias gd='git diff'
+alias di='git diff'
+alias di.='git diff .'
 alias gdi='git diff'
-alias gd.='git diff .'
 alias gdw='git diff --no-ext-diff'
 alias gdW='git diff --no-ext-diff --word-diff'
 
