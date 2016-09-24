@@ -42,3 +42,5 @@ Temporary Items
 # ignore
 .config/hub
 .config/dlv/.dbg_history
+.config/codesign/*.cer
+.config/codesign/*.key
