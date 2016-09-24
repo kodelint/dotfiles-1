@@ -3,7 +3,11 @@
 # -C : Force multi-column output.
 # -F : Append indicator (one of */=>@|) to entries.\
 function ls_abbrev {
-  local cmd_ls='ls'
+  if hash gls; then
+    local cmd_ls='gls'
+  else
+    local cmd_ls='gls'
+  fi
   local -a opt_ls
   opt_ls=('-ACF' '--group-directories-first' '--color=always' '--ignore=.DS_Store' '--ignore=.ycm_extra_conf.pyc')
 
@@ -16,7 +20,7 @@ function ls_abbrev {
       echo "$ls_result\n" | head -n 5
       echo '...'
       echo "$ls_result\n" | tail -n 5
-      echo "$(command ls -1 -A | wc -l | tr -d ' ') files exist"
+      echo "$(command $cmd_ls -1 -A | wc -l | tr -d ' ') files exist"
   else
       echo "$ls_result\n"
   fi
