@@ -2,7 +2,12 @@
 # set default cmake generator
 #
 
-CURRENT=$(readlink -f .)
+if hash greadlink; then
+  CURRENT=$(greadlink -f .)
+else
+  CURRENT=$(readlink -f .)
+fi
+
 
 if [[ $CURRENT == *build* ]]; then
   cd ../
