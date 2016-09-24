@@ -30,17 +30,15 @@
 #
 # }}}
 # -----------------------------------------------------------------------------
-# compinit
-autoload -Uz compinit zrecompile; compinit
 
 # Environment caching
 #   - unset in bottom of the .zshrc
 # TODO: needs 'local'?
 
 if [[ -d "/Applications/Xcode-beta.app/Contents/Developer" ]]; then
-export DEVELOPER_DIR="/Applications/Xcode-beta.app/Contents/Developer"
-elif [[ -d "/Applications/Xcode.app/Contents/Developer" ]]; then
   export DEVELOPER_DIR="/Applications/Xcode-beta.app/Contents/Developer"
+elif [[ -d "/Applications/Xcode.app/Contents/Developer" ]]; then
+  export DEVELOPER_DIR="/Applications/Xcode.app/Contents/Developer"
 fi
 # export DEVELOPER_DIR="$(xcode-select -p)"
 ZSH_PLUGIN=$HOME/.zsh/plugins
@@ -53,49 +51,48 @@ DOTFILES=$HOME/src/github.com/zchee/dotfiles
 
 command ulimit -n 10000
 export ZSH_COLORS=1
+# bash like time output
+# export TIMEFMT=$'\nreal\t%E\nuser\t%U\nsys\t%S'
 
 # }}}
 # -----------------------------------------------------------------------------
 # Path {{{
 
 # Loading automatically settings XDG Base Directories
-export XDG_RUNTIME_DIR="/run/user/501"
-. $HOME/.zsh/plugins/o-pikozh/xdg-basedirs/xdg-basedirs
-. $HOME/.zsh/plugins/o-pikozh/xdg-basedirs/xdg-runtime-dir
-# Unofficial XDG environment variable
-export XDG_LOG_HOME="${XDG_DATA_HOME}/var/log"
-
+: ${XDG_RUNTIME_DIR:=/run/user/501}
+: ${XDG_DATA_HOME:=$HOME/.local/share}
+: ${XDG_CONFIG_HOME:=$HOME/.config}
+: ${XDG_DATA_DIRS:=/usr/local/share:/usr/share}
+: ${XDG_CONFIG_DIRS:=/etc/xdg}
+: ${XDG_CACHE_HOME:=$HOME/.cache}
+: ${XDG_LOG_HOME:=$HOME/.local/var/log}
 
 # }}}
 # -----------------------------------------------------------------------------
 # Common terminal environment variables {{{
 
+export CACHE=$XDG_CACHE_HOME
+export LC_ALL='en_US.UTF-8'
+export LANG='en_US.UTF-8'
 export SHELL="/usr/local/bin/zsh"
 export TERM='xterm-256color'
-export LC_CTYPE='en_US.UTF-8'
-export LC_ALL='en_US.UTF-8'
-# export PROMPT_EOL_MARK=''
+export TERMINFO='/usr/local/share/terminfo'
 
 # Affected in all CUI tools
-export EDITOR="nvim"
-export VISUAL="nvim"
-export PAGER='less -R'
-export MANPAGER='less -R'
-export GIT="/usr/local/bin/git"
 export BROWSER="/Applications/Chromium.app/Contents/MacOS/Chromium"
+export EDITOR="nvim"
+export MANPAGER='less -R'
+export PAGER='less -R'
+export VISUAL="nvim"
 
-# export CLICOLOR=1
+export CLICOLOR=1
 export BLOCKSIZE=1k
 
 if [[ "$OSTYPE" == darwin* ]]; then
-  # export BROWSER=open
   export BROWSER=/Applications/Chromium.app/Contents/MacOS/Chromium # for pprof
 fi
-export CACHE=$XDG_CACHE_HOME
 
-if [[ -z "$LANG" ]]; then
-  export LANG='en_US.UTF-8'
-fi
+export PROMPT_EOL_MARK='%'
 
 # }}}
 # -----------------------------------------------------------------------------
@@ -111,11 +108,15 @@ fi
 # PFLAGS   - for Pascal compiler
 # YFLAGS   - for yacc
 
-# export CC="${DEVELOPER_DIR}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
-export CC='clang'
+# export CC='clang'
+export CC="$(xcrun -f clang)"
 export CXX="${CC}++"
+export ARCHFLAGS='-arch x86_64'
+# export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
+
 # export MAKEFLAGS="-j $(($(/opt/coreutils/bin/nproc)+1))" # exec command too slow
-export MAKEFLAGS="-j"
+export MAKEFLAGS="-j 9"
+export MACOSX_DEPLOYMENT_TARGET=10.12
 
 # }}}
 # -----------------------------------------------------------------------------
@@ -139,7 +140,9 @@ export NEOVIM_GO_LOG_FILE="${XDG_LOG_HOME}/nvim/go/neovim-go.log"
 # export NVIM_PYTHON_LOG_FILE="${XDG_LOG_HOME}/nvim/python/python-client.log"
 # export NVIM_PYTHON_LOG_LEVEL="DEBUG"
 export NVIM_IPY_DEBUG_FILE="${XDG_LOG_HOME}/nvim/python/nvim-ipy.log"
+export NVIM_DEOPLETE_LOG_FILE="${XDG_LOG_HOME}/nvim/python/deoplete.log"
 export NVIM_DEOPLETE_JEDI_LOG_FILE="${XDG_LOG_HOME}/nvim/python/deoplete.log"
+export NVIM_DEOGOTO_LOG_FILE="${HOME}/.local/var/log/nvim/python/deogoto.log"
 
 
 # gdb
@@ -149,8 +152,8 @@ export GDBHISTFILE="$HOME/.history/.gdb_history"
 # cURL
 #  - Ref: https://gist.github.com/1stvamp/2158128#gistcomment-1573222
 #  - Ref: https://github.com/smdahlen/vagrant-digitalocean/issues/123
-export CURL_CA_BUNDLE="/usr/local/etc/ssl/certs/curl-ca-bundle.crt"
-export SSL_CERT_FILE="/usr/local/etc/ssl/certs/curl-ca-bundle.crt"
+# export CURL_CA_BUNDLE="/usr/local/etc/openssl/certs/cert.pem"
+export CURL_CA_BUNDLE="/usr/local/etc/libressl/cert.pem"
 
 
 
@@ -211,8 +214,6 @@ export JCOLOR=1
 
 # Homebrew
 export HOMEBREW_CACHE="${XDG_CACHE_HOME}/Homebrew"
-export HOMEBREW_DEBUG=1
-export HOMEBREW_DEVELOPER=1
 export HOMEBREW_MAKE_JOBS=8
 export HOMEBREW_VERBOSE=1
 export HOMEBREW_CASK_OPTS="--appdir=/Applications --caskroom=/Applications/Caskroom"
@@ -223,48 +224,55 @@ export HOMEBREW_CASK_OPTS="--appdir=/Applications --caskroom=/Applications/Caskr
 
 # Go
 export GOPATH="${HOME}/go"
-export GOROOT_BOOTSTRAP="/usr/local/bootstrap/go/go1.4.3"
+# export GOROOT_BOOTSTRAP="/usr/local/go-darwin-amd64-bootstrap"
+export GOROOT_BOOTSTRAP="/usr/local/bootstrap/go/go1.7.1"
 export GO15VENDOREXPERIMENT=1
 export CGO_ENABLED=1
 
 
-# Jupyter
-export JUPYTER_RUNTIME_DIR="$XDG_RUNTIME_DIR/jupyter"
-export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME/jupyter"
-export JUPYTER_PATH="$XDG_DATA_HOME/jupyter"
-
-
 # Python
-export PYTHON_CONFIGURE_OPTS="--enable-shared"
-export VIRTUAL_ENV_DISABLE_PROMPT=1
-export PYTHONSTARTUP="${XDG_CONFIG_HOME}/python/.pythonrc"
+# It is strongly recommended that PYTHONHOME and PYTHONPATH be unset,
+# as they can interfere with the Intel® Distribution for Python for OS X.
+# export PYTHON_CONFIGURE_OPTS="--enable-shared"
+# export PYTHONSTARTUP="${XDG_CONFIG_HOME}/python/.pythonrc"
+# pyenv
+# export PYENV_ROOT=/usr/local/var/pyenv
+# export VIRTUAL_ENV_DISABLE_PROMPT=1
+# Jupyter
+export JUPYTER_RUNTIME_DIR="${XDG_RUNTIME_DIR}/jupyter"
+export JUPYTER_CONFIG_DIR="${XDG_CONFIG_HOME}/jupyter"
+export JUPYTER_PATH="${XDG_DATA_HOME}/jupyter"
+# IPython
 export IPYTHONDIR="${XDG_CONFIG_HOME}/ipython"
+# pip for Makefile
+export PIP_FLAGS='--user'
+
+
+# OCaml
+eval `opam config env`
+
 
 # Ruby
 export RBENV_ROOT="/usr/local/var/rbenv"
-# if (( $+commands[rbenv] )); then
-#     eval "$(rbenv init -)"
-# fi
 
 
 # Node
 export NODEBREW_ROOT="/usr/local/var/nodebrew"
-export NODE_REPL_HISTORY="$HOME/.history/node/.node_repl_history"
+export NODE_REPL_HISTORY="${HOME}/.history/node/.node_repl_history"
 
 
 # Java
-export JAVA_HOME=$(/usr/libexec/java_home)
+# export JENV_ROOT=/usr/local/var/jenv
+# if which jenv > /dev/null; then eval "$(jenv init -)"; fi
+# export JAVA_HOME=$(/usr/libexec/java_home)
+# export JAVA_HOME='/Library/Java/JavaVirtualMachines/jdk-9.jdk/Contents/Home'
 
-
-# Ocaml
-# export PERL5LIB="$HOME/.opam/system/lib/perl5"
-# . $HOME/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
 
 # API token
 . "$XDG_DATA_HOME/token/token"
 
 
-# asciidoc
+# asciidoc (brew)
 export XML_CATALOG_FILES="/usr/local/etc/xml/catalog"
 
 
@@ -280,112 +288,117 @@ export BORG_REPO="/Volumes/WD20EZRX/borg"
 export PGDATA="/usr/local/var/postgres"
 
 
-# gnulib issue
+# gnulib issue (brew)
 export gl_cv_func_getcwd_abort_bug="no"
 
 # }}}
 # -----------------------------------------------------------------------------
 # Global Environment variables
+#
 
 # typeset to (lower|upper)case environment variable
 local -a _typeset
-
 _typeset=(
+  INCLUDE \
+  LD_LIBRARY_PATH \
+  \
   CLASSPATH \
   CPATH \
   DAALROOT \
   DYLD_LIBRARY_PATH \
-  FPATH \
-  INCLUDE \
   INTEL_LICENSE_FILE \
   INTEL_PYTHONHOME \
   IPPROOT \
-  LD_LIBRARY_PATH \
   LIBRARY_PATH \
-  MANPATH \
   MKLROOT \
   NLSPATH \
-  PATH \
   PERL5LIB \
   TBBROOT \
 )
-
 for type in $_typeset[@]; do
-  [ -z $"${type:l}" ] && typeset -xT ${type} ${type:l}
+  typeset -xT ${type} ${type:l}
 done
+# Specific directory path (PATH, CDPATH, FPATH, MANPATH) is set by default.
+typeset -U path cdpath fpath manpath
 typeset -U "$_typeset[@]:l"
 
 path=(
+  # dotfiles scripts
   ${HOME}/bin(N-/)
-  /Applications/Docker.app/Contents/Resources/bin(N-/)
+  # The Go language toolchain
   /usr/local/go/bin(N-/)
   ${GOPATH}/bin(N-/)
+  # Intel® C++ compilers runtime
   /opt/intel/bin(N-/)
-  /opt/intel/intelpython35/bin(N-/)
-  /opt/intel/intelpython27/bin(N-/)
-  ${HOME}/.local/bin(N-/)
-  ${HOME}/.pyenv/bin(N-/)
-  ${RBENV_ROOT}/shims(N-/)
-  ${NODEBREW_ROOT}/current/bin(N-/)
-  ${HOME}/.nimble/bin(N-/)
-  ${HOME}/google-cloud-sdk/bin(N-/)
+  # Intel® Distribution for Python2 and 3
+  /opt/intel/intelpython{3,2}/bin(N-/)
+  # Apple File System(apfs) command line tools
+  /System/Library/Filesystems/apfs.fs/Contents/Resources(N-/)
+  # NVIDIA CUDA Toolkit
+  /Developer/NVIDIA/CUDA/bin(N-/)
   /usr/local/cuda/bin(N-/)
-  /opt/newosxbook/bin(N-/)
-  /opt/coreutils/bin(N-/)
-  /opt/binutils/bin(N-/)
-  /usr/local/{bin,sbin}
-  /usr/{bin,sbin}(N-/)
+  # Docker for Mac pre-compile binary
+  ${HOME}/Library/Group\ Containers/group.com.docker/bin(N-/)
+  # google cloud sdk
+  ${HOME}/google-cloud-sdk/bin(N-/)
+  # installed with pip, etc
+  ${HOME}/.local/bin(N-/)
+  # rust
+  ${HOME}/.cargo/bin(N-/)
+  # pyenv, rbenv, nodebrew, jenv
+  # ${PYENV_ROOT}/{bin,shims}(N-/)
+  ${RBENV_ROOT}/{bin,shims}(N-/)
+  ${NODEBREW_ROOT}/current/bin(N-/)
+  # ${JENV_ROOT}/bin(N-/)
+
+  # brewed GNU {sed, coreutils} with default names
+  /usr/local/opt/{gnu-sed,coreutils}/libexec/gnubin(N-/)
+  # brewed GNU tar
+  /usr/local/opt/gnu-tar/bin(N-/)
+  # brewed git contrib diff-highlight script
+  /usr/local/opt/git/share/git-core/contrib/diff-highlight(N-/)
+  # Adobe Font Development Kit (afdko)
+  /opt/adobe/afdko/Tools/osx(N-/)
+  # nexosxbook(Author of Mac OS X and iOS Internals book) darwin utility
+  ${HOME}/src/newosxbook.com/bin(N-/)
+  # Xcode compiler toolchain
   ${DEVELOPER_DIR}/Toolchains/XcodeDefault.xctoolchain/usr/bin(N-/)
-  /opt/llvm/bin(N-/)
-  /opt/cern/root/bin(N-/)
-  /opt/cern/cling/bin(N-/)
   ${DEVELOPER_DIR}/usr/bin(N-/)
+  # Linux filesystem default binary path
+  /usr/local/{bin,sbin}(N-/)
+  # Oracle Java
+  ${JAVA_HOME}/bin(N-/)
+  # Linux filesystem default binary path
+  /usr/{bin,sbin}(N-/)
   /{bin,sbin}(N-/)
-  /usr/local/opt/afdko/Tools/osx(N-/)
-  /opt/apple/llbuild/bin(N-/)
-  /opt/apple/lldb/bin(N-/)
-  /opt/apple/llvm/bin(N-/)
-  /opt/apple/swift/bin(N-/)
-  $path
+  ${path}
 )
 
 fpath=(
   ${HOME}/.zsh/functions(N-/)
   ${HOME}/.zsh/completions(N-/)
+  ${HOME}/.zsh/completions/{zsh-completions,go,macOS}/src(N-/)
   /usr/local/opt/git/share/zsh/site-functions(N-/)
-  ${HOME}/src/github.com/zchee/go-zsh-completions(N-/)
   ${ZSH_PLUGIN}/zsh-users/zsh-completions/src(N-/)
   ${ZSH_PLUGIN}/zsh-users/zsh-syntax-highlighting(N-/)
-  $fpath
+  ${fpath}
 )
 
-include=(
-  /opt/llvm/include(N-/)
-  /opt/cern/root/include(N-/)
-  /usr/local/cuda/include(N-/)
-  /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/include(N-/)
-  /usr/local/include(N-/)
-  $(xcrun --show-sdk-path)/usr/include(N-/)
-  /usr/include(N-/)
-  $include
-)
-
-ld_library_path=(
-  /opt/intel/lib(N-/)
-  /opt/llvm/lib(N-/)
-  /opt/cern/root/lib(N-/)
-  /usr/local/cuda/lib(N-/)
-  /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib(N-/)
-  /usr/local/lib(N-/)
-  $(xcrun --show-sdk-path)/usr/lib(N-/)
-  /usr/lib(N-/)
-  $ld_library_path
+cdpath=(
+  ${GOPATH}/src/github.com(N-/)
+  ${GOPATH}/src/golang.org/x(N-/)
+  ${GOPATH}/src(N-/)
+  ${HOME}/src/github.com(N-/)
+  ${cdpath}
 )
 
 manpath=(
   /opt/intel/man/common(N-/)
   /opt/intel/man/gdb-ia(N-/)
   /opt/llvm/share/man(N-/)
+  /usr/local/opt/gnu-sed/libexec/gnuman(N-/)
+  /usr/local/opt/gnu-tar/libexec/gnuman(N-/)
+  /usr/local/opt/coreutils/libexec/gnuman(N-/)
   /usr/local/share/man(N-/)
   ${DEVELOPER_DIR}/Toolchains/XcodeDefault.xctoolchain/usr/share/man(N-/)
   ${DEVELOPER_DIR}/usr/share/man(N-/)
@@ -394,54 +407,98 @@ manpath=(
   /opt/binutils/share/man(N-/)
   /usr/local/share/linux(N-/)
   /opt/cern/root/man(N-/)
-  $manpath
+  ${manpath}
 )
 
-# Intel compiler toolchain
-export CLASSPATH=/opt/intel/compilers_and_libraries/mac/daal/lib/daal.jar
-export DAALROOT=/opt/intel/compilers_and_libraries/mac/daal
-export INTEL_LICENSE_FILE=/opt/intel/licenses
-export INTEL_PYTHONHOME=/opt/intel/debugger_2017/python/intel64
-export IPPROOT=/opt/intel/compilers_and_libraries/mac/ipp
-export MKLROOT=/opt/intel/compilers_and_libraries/mac/mkl
-export TBBROOT=/opt/intel/compilers_and_libraries/mac/tbb
+include=(
+  ${HOME}/.local/include(N-/)
+  /opt/llvm/include(N-/)
+  /opt/cern/root/include(N-/)
+  /usr/local/cuda/include(N-/)
+  /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/include(N-/)
+  /usr/local/include(N-/)
+  $(xcrun --show-sdk-path)/usr/include(N-/)
+  ${HOME}/src/newosxbook.com/include(N-/)
+  /usr/include(N-/)
+  ${include}
+)
 
-export CPATH=/opt/intel/compilers_and_libraries/mac/daal/include:/opt/intel/compilers_and_libraries/mac/ipp/include:/opt/intel/compilers_and_libraries/mac/mkl/include:/opt/intel/compilers_and_libraries/mac/tbb/include
-export DYLD_LIBRARY_PATH=/opt/intel/compilers_and_libraries/mac/lib:/opt/intel/compilers_and_libraries/mac/lib/intel64:/opt/intel/compilers_and_libraries/mac/daal/lib:/opt/intel/compilers_and_libraries/mac/ipp/lib:/opt/intel/compilers_and_libraries/mac/mkl/lib:/opt/intel/compilers_and_libraries/mac/tbb/lib
-export LIBRARY_PATH=/opt/intel/compilers_and_libraries/mac/lib:/opt/intel/compilers_and_libraries/mac/tbb/lib:/opt/intel/compilers_and_libraries/mac/daal/lib:/opt/intel/compilers_and_libraries/mac/ipp/lib:/opt/intel/compilers_and_libraries/mac/mkl/lib
-export NLSPATH=/opt/intel/compilers_and_libraries/mac/lib/locale/en_US:/opt/intel/compilers_and_libraries/mac/mkl/lib/locale/en_US
-# Why can't use it?
-# cpath=(
-#   /opt/intel/include(N-/)
-#   /opt/intel/compilers_and_libraries/mac/daal/include(N-/)
-#   /opt/intel/compilers_and_libraries/mac/ipp/include(N-/)
-#   /opt/intel/compilers_and_libraries/mac/mkl/include(N-/)
-#   /opt/intel/compilers_and_libraries/mac/tbb/include(N-/)
-#   $cpath
-# )
-# dyld_library_path=(
-#   /opt/intel/compilers_and_libraries/mac/lib(N-/)
-#   /opt/intel/compilers_and_libraries/mac/lib/intel64(N-/)
-#   /opt/intel/compilers_and_libraries/mac/daal/lib(N-/)
-#   /opt/intel/compilers_and_libraries/mac/ipp/lib(N-/)
-#   /opt/intel/compilers_and_libraries/mac/mkl/lib(N-/)
-#   /opt/intel/compilers_and_libraries/mac/tbb/lib(N-/)
-#   $dyld_library_path
-# )
-# library_path=(
-#   /opt/intel/compilers_and_libraries/mac/lib(N-/)
-#   /opt/intel/compilers_and_libraries/mac/tbb/lib(N-/)
-#   /opt/intel/compilers_and_libraries/mac/daal/lib(N-/)
-#   /opt/intel/compilers_and_libraries/mac/ipp/lib(N-/)
-#   /opt/intel/compilers_and_libraries/mac/mkl/lib(N-/)
-#   /opt/intel/compilers_and_libraries/mac/tbb/lib(N-/)
-#   $library_path
-# )
-# nlspath=(
-#   /opt/intel/compilers_and_libraries/mac/lib/locale/en_US(N-/)
-#   /opt/intel/compilers_and_libraries/mac/mkl/lib/locale/en_US(N-/)
-#   $nlspath
-# )
+ld_library_path=(
+  /opt/intel/lib(N-/)
+  /opt/intel/intelpython{3,2}/lib(N-/)
+  /opt/llvm/lib(N-/)
+  /opt/cern/root/lib(N-/)
+  /usr/local/cuda/lib(N-/)
+  /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib(N-/)
+  /usr/local/lib(N-/)
+  $(xcrun --show-sdk-path)/usr/lib(N-/)
+  /usr/lib(N-/)
+  ${ld_library_path}
+)
+
+dyld_library_path=(
+  /opt/intel/compilers_and_libraries/mac/lib(N-/)
+  /opt/intel/compilers_and_libraries/mac/lib/intel64(N-/)
+  /opt/intel/compilers_and_libraries/mac/daal/lib(N-/)
+  /opt/intel/compilers_and_libraries/mac/ipp/lib(N-/)
+  /opt/intel/compilers_and_libraries/mac/mkl/lib(N-/)
+  /opt/intel/compilers_and_libraries/mac/tbb/lib(N-/)
+  /Developer/NVIDIA/CUDA/lib(N-/)
+  ${dyld_library_path}
+)
+library_path=(
+  /opt/intel/compilers_and_libraries/mac/lib(N-/)
+  /opt/intel/compilers_and_libraries/mac/tbb/lib(N-/)
+  /opt/intel/compilers_and_libraries/mac/daal/lib(N-/)
+  /opt/intel/compilers_and_libraries/mac/ipp/lib(N-/)
+  /opt/intel/compilers_and_libraries/mac/mkl/lib(N-/)
+  /opt/intel/compilers_and_libraries/mac/tbb/lib(N-/)
+  ${library_path}
+)
+
+# Intel® C++ compilers runtime
+classpath=(
+  /opt/intel/compilers_and_libraries/mac/daal/lib/daal.jar
+  ${classpath}
+)
+daalroot=(
+  /opt/intel/compilers_and_libraries/mac/daal
+  ${daalroot}
+)
+intel_license_file=(
+  /opt/intel/licenses
+  ${intel_license_file}
+)
+intel_pythonhome=(
+  /opt/intel/debugger_2017/python/intel64
+  ${intel_pythonhome}
+)
+ipproot=(
+  /opt/intel/compilers_and_libraries/mac/ipp
+  ${ipproot}
+)
+mklroot=(
+  /opt/intel/compilers_and_libraries/mac/mkl
+  ${mklroot}
+)
+tbbroot=(
+  /opt/intel/compilers_and_libraries/mac/tbb
+  ${tbbroot}
+)
+nlspath=(
+  /opt/intel/compilers_and_libraries/mac/lib/locale/en_US(N-/)
+  /opt/intel/compilers_and_libraries/mac/mkl/lib/locale/en_US(N-/)
+  ${nlspath}
+)
+cpath=(
+  /opt/intel/compilers_and_libraries_2017.0.065/mac/ipp/include(N-/)
+  /opt/intel/compilers_and_libraries_2017.0.065/mac/mkl/include(N-/)
+  /opt/intel/compilers_and_libraries_2017.0.065/mac/tbb/include(N-/)
+  /opt/intel/compilers_and_libraries_2017.0.065/mac/daal/include(N-/)
+  /usr/local/include(N-/)
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include(N-/)
+  ${cpath}
+)
 
 # }}}
 # -----------------------------------------------------------------------------
