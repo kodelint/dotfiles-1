@@ -14,9 +14,9 @@ else
   DOCKER_DOWNLOAD_URL="https://test.docker.com/builds/Linux/x86_64/docker-${DOCKER_VERSION}"
 fi
 
-sudo sh -c "rm -f /usr/bin/docker \
-  && curl -fL -o /usr/bin/docker ${DOCKER_DOWNLOAD_URL} \
-  && chmod +x /usr/bin/docker \
+sudo sh -c "rm -f /usr/local/bin/docker \
+  && curl -fL -o /usr/local/bin/docker ${DOCKER_DOWNLOAD_URL} \
+  && chmod +x /usr/local/bin/docker \
   && /etc/init.d/docker restart \
   && printf '\033[0;36mWait for restart docker server...\033[0m\n\n' \
   && sleep 3 \
