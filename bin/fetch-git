@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+if hash greadlink; then
+  DIRECTORY=$(greadlink -f .)
+else
+  DIRECTORY=$(readlink -f .)
+fi
+
+if [[ -n $1 ]]; then
+  BRANCH=$1
+fi
+
+repository=$(find $DIRECTORY -type d -depth 1 \( ! -iname "build*" \) \( ! -iname "*mirror*" \) \( ! -iname "llvm-*" \))
+
+echo 'Update repository'
+for r in $repository
+do
+  echo "  $r"
+done
+
+for d in $repository
+do
+  cd $d
+  if ! [[ -n $BRANCH ]]; then
+    BRANCH=$(git name-rev --name-only --no-undefined --always HEAD)
+  fi
+  git pull origin $BRANCH
+done
