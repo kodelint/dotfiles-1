@@ -1,8 +1,0 @@
-#!/bin/bash
-set -e
-
-# generate ec2 cert script ???
-
-openssl req -new -x509 -nodes -sha256 -days 3650 \
-  -key ~/.aws/credentials/ec2fullaccess/private.pem -outform PEM \
-  > ~/.aws/credentials/ec4fullaccess/cert.pem
