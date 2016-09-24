@@ -1,0 +1,24 @@
+" set
+set smoothscroll
+let vimcommand = 'nvim'
+let barposition = "bottom"
+let scrollstep = 100
+set noautofocus
+
+" Mapping
+unmap <S-t>
+map .py   :tabnew docs.python.jp/3//library/index.html<CR>
+map .r    :source ~/.config/cvim/.cvimrc<CR>
+map .t    :tabnew chrome://newtab<CR>
+map .w    :tabnew https://twitter.com/<CR>
+map .fl   :tabnew chrome://flags<CR>
+map gj    :tabnew https://www.google.co.jp/webhp?hl=ja<CR>
+map .g    :tabnew https://github.com<CR>
+imap <C-o> editWithVim
+
+" Jump search result and centering
+map <C-n> :execute n+zz<CR>
+
+let configpath = '~/.config/cvim/.cvimrc'
+set localconfig
+let blacklists = ["http://play.golang.org/*","https://groups.google.com/*"]
