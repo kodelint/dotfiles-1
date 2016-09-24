@@ -1,12 +1,9 @@
-# https://github.com/anishathalye/dotfiles/blob/c98622d4da7ad3147fefedfb3a43149d8ed3cac7/zsh/prompt.zsh
 # Set custom prompt
-
 # Allow for variable/function substitution in prompt
 setopt prompt_subst
-
 # Load color variables to make it easier to color things
 autoload -U colors && colors
-# zmodload zsh/zpty
+zmodload zsh/zpty
 
 # Make using 256 colors easier
 # if [[ "$(tput colors)" == "256" ]]; then
@@ -34,9 +31,11 @@ fg[black]=$(printf "\x1b[38;2;0;0;0m")        # $FG[000]
 fg[red]=$(printf "\x1b[38;2;204;0;0m")        # $FG[160]
 fg[green]=$(printf "\x1b[38;2;51;153;0m")     # $FG[064]
 fg[yellow]=$(printf "\x1b[38;2;153;102;0m")   # $FG[136]
-fg[blue]=$(printf "\x1b[38;2;0;102;255m")     # $FG[033]
+# fg[blue]=$(printf "\x1b[38;2;0;102;255m")     # $FG[033]
+fg[blue]=$(printf "\x1b[38;2;129;162;190m")   # $FG[037]
 fg[magenta]=$(printf "\x1b[38;2;153;0;51m")   # $FG[125]
-fg[cyan]=$(printf "\x1b[38;2;129;162;190m")   # $FG[037]
+# fg[cyan]=$(printf "\x1b[38;2;129;162;190m")   # $FG[037]
+fg[cyan]=$(printf "\x1b[38;2;161;203;197m")   # $FG[037]
 fg[white]=$(printf "\x1b[38;2;255;255;255m")  # $FG[255]
 
 fg[dimgray]=$(printf "\x1b[38;2;105;105;105m")
@@ -55,9 +54,11 @@ bg[black]=$(printf "\x1b[48;2;0;0;0m")        # $FG[000]
 bg[red]=$(printf "\x1b[48;2;204;0;0m")        # $FG[160]
 bg[green]=$(printf "\x1b[48;2;51;153;0m")     # $FG[064]
 bg[yellow]=$(printf "\x1b[48;2;153;102;0m")   # $FG[136]
-bg[blue]=$(printf "\x1b[48;2;0;102;255m")     # $FG[033]
+# fg[blue]=$(printf "\x1b[48;2;0;102;255m")     # $FG[033]
+bg[blue]=$(printf "\x1b[48;2;129;162;190m")   # $FG[037]
 bg[magenta]=$(printf "\x1b[48;2;153;0;153m")  # $FG[127]
-bg[cyan]=$(printf "\x1b[48;2;0;153;153m")     # $FG[037]
+# fg[cyan]=$(printf "\x1b[48;2;129;162;190m")   # $FG[037]
+bg[cyan]=$(printf "\x1b[48;2;161;203;197m")   # $FG[037]
 bg[white]=$(printf "\x1b[48;255;255;255;0m")  # $FG[255]
 
 bg[skyblue]=$(printf "\x1b[48;2;51;153;153m") # $FG[073]
@@ -118,7 +119,7 @@ function PR_DIR() {
     fi
 
     # echo "%{$fg[green]%}${truncated}%{$fg[orange]%}%B${last}%b%{$reset_color%}"
-    echo "%{$fg[cyan]%}$(pwd | sed -e "s,^$HOME,~,")%b%{$reset_color%}"
+    echo "%{$fg[blue]%}$(pwd | sed -e "s,^$HOME,~,")%b%{$reset_color%}"
 }
 
 # An exclamation point if the previous command did not complete successfully
@@ -182,7 +183,7 @@ GIT_RPROMPT_PREFIX="%{$fg[violet]%}%B(%b%{$reset_color%}"
 GIT_RPROMPT_SUFFIX="%{$fg[violet]%}%B)%b%{$reset_color%}"
 GIT_PROMPT_AHEAD="%{$fg[teal]%}%B+NUM%b%{$reset_color%}"
 GIT_PROMPT_BEHIND="%{$fg[orange]%}%B-NUM%b%{$reset_color%}"
-GIT_PROMPT_MERGING="%{$fg[cyan]%}%Bx%b%{$reset_color%}"
+GIT_PROMPT_MERGING="%{$fg[blue]%}%Bx%b%{$reset_color%}"
 GIT_PROMPT_UNTRACKED="%{$fg[red]%}%B$DIFF_SYMBOL%b%{$reset_color%}"
 GIT_PROMPT_MODIFIED="%{$fg[yellow]%}%B$DIFF_SYMBOL%b%{$reset_color%}"
 GIT_PROMPT_STAGED="%{$fg[green]%}%B$DIFF_SYMBOL%b%{$reset_color%}"
