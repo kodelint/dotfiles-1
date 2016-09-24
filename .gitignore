@@ -45,3 +45,4 @@ Temporary Items
 .config/codesign/*.cer
 .config/codesign/*.key
 .config/conda/envs
+.config/dbxcli/auth.conf
