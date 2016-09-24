@@ -1,0 +1,42 @@
+#!/usr/bin/env zsh
+
+# Building Go runtime scirpt
+
+case $1 in
+  race)
+    if ! hash go; then
+      echo 'std race build must be before install the go runtime'
+      exit 1
+    fi
+    cd "$(go env GOROOT)/src"
+    git diff --exit-code HEAD origin/master 1>/dev/null
+    if [[ $? == "1" ]]; then
+      echo 'Build the Go runtime before race build ...'
+      git fetch origin master
+      git checkout master
+      ./make.bash
+    fi
+    cd -
+    echo 'Rebuild the go runtime with race ...'
+    go install -v -x -race std
+    ;;
+  *)
+    echo 'Change directory to $GOROOT/src ...'
+    if hash go; then
+      cd "$(go env GOROOT)/src"
+    else
+      if ! [[ -d '/usr/local' ]]; then
+        mkdir -p '/usr/local/'
+      fi
+      git clone https://go.googlesource.com/go /usr/local/go
+      cd '/usr/local/go/src'
+    fi
+
+    echo 'Fetch the go master sources ...'
+    git pull
+
+    echo ''
+    echo 'make'
+    ./make.bash
+    ;;
+esac
