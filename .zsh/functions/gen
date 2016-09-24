@@ -1,0 +1,27 @@
+# initialize the repository
+
+case "$1" in
+  go)
+    LICENSE_FILE=BSD3_Owner
+    FILETYPE=Go
+    ;;
+  python)
+    LICENSE_FILE=BSD3_Owner
+    FILETYPE=Python
+    ;;
+  *)
+    echo 'unknown language'
+esac
+
+if [[ -n $FILETYPE ]]; then
+  git init
+
+  cat "${HOME}/.config/license/${LICENSE_FILE}" > LICENSE
+  touch .gitignore; echo "# github/gitignore/${FILETYPE}.gitignore" >> .gitignore; cat "${HOME}/.config/git/gitignore/${FILETYPE}.gitignore" >> .gitignore
+
+  git remote add origin git@github.com:zchee/$(basename $PWD).git
+  git add LICENSE .gitignore
+  git commit --signoff -m 'Initial commit'
+fi
+
+# vim:ft=zsh
