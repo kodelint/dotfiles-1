@@ -6,5 +6,6 @@ zshaddhistory() {
 
     [[ ${#line} -ge 5
         && ${cmd} != (	*)
+        && ${cmd} != (:*)
     ]]
 }
