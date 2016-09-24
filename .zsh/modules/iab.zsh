@@ -10,11 +10,11 @@ abbreviations=(
   "H"    "| pt"
   "L"    "| less"
   "N"    "> /dev/null"
-  "P"    "| pbc"
+  "P"    "| pbcopy"
   "S"    "| sed"
   "T"    "| tail"
   # "W"    "| wc"
-  # "X"    "| xargs"
+  "X"    "| xargs"
 )
 
 magic-abbrev-expand() {
