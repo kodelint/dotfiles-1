@@ -2,7 +2,13 @@
 # Zsh completions {{{
 #
 # cf: https://github.com/seebi/zshrc/blob/master/completion.zsh
+#
 
+# ----------------------------------------------------------------------------
+# compinit
+
+autoload -Uz compinit zrecompile; compinit
+source /usr/local/share/zsh/site-functions/_aws
 
 # add an autoload function path, if directory exists
 # http://www.zsh.org/mla/users/2002/msg00232.html
@@ -12,10 +18,8 @@ if [[ -d "$functionsd" ]] {
     autoload -U $functionsd/*(:t)
 }
 
-compdef _gnu_generic \
-  ctags \
-  dlv
 
+# ----------------------------------------------------------------------------
 # Load completions system
 zmodload -i zsh/complist
 
@@ -115,7 +119,7 @@ zstyle -e ':completion:*:hosts' hosts 'reply=(
 zstyle ':completion:*:*files' ignored-patterns \
   '.git' '.hg' '.svn' \
   \
-  '*?.aux' '*?.out' \
+  '*?.aux' '*?.out' '*?.so' \
   '*?.toc' \
   '*?.snm' \
   '*?.nav' \
@@ -128,7 +132,9 @@ zstyle ':completion:*:*files' ignored-patterns \
   '*?.pyc' \
   '__pycache__' \
   '.vscode' \
-  'debug'
+  'LICENSE' \
+  '*?~' \
+  '*\#'
 
 # Don't complete uninteresting users
 zstyle ':completion:*:*:*:users' ignored-patterns \
@@ -172,4 +178,6 @@ zstyle ':completion:*:(ssh|scp|rsync):*:hosts-host' ignored-patterns '*(.|:)*' l
 zstyle ':completion:*:(ssh|scp|rsync):*:hosts-domain' ignored-patterns '<->.<->.<->.<->' '^[-[:alnum:]]##(.[-[:alnum:]]##)##' '*@*'
 zstyle ':completion:*:(ssh|scp|rsync):*:hosts-ipaddr' ignored-patterns '^(<->.<->.<->.<->|(|::)([[:xdigit:].]##:(#c,2))##(|%*))' '127.0.0.<->' '255.255.255.255' '::1' 'fe80::*'
 # }}}
-###################################################################################################
+# -------------------------------------------------------------------------------------------------
+# Load compdef
+source ${HOME}/.zsh/compdef.zsh
