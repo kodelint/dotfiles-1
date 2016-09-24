@@ -32,7 +32,6 @@ function ex {
     $HOME/.zsh/prompt.zsh
     $HOME/.zsh/history.zsh
     $HOME/.zsh/key-bindings.zsh
-    $HOME/.zsh/zcompile.zsh
     $HOME/.zsh/modules/brew.zsh
     $HOME/.zsh/modules/docker.zsh
     $HOME/.zsh/modules/git.zsh
