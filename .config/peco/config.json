@@ -1,0 +1,11 @@
+{
+    "Keymap": {
+        "C-ArrowLeft": "peco.BackwardChar",
+        "C-ArrowRight": "peco.ForwardChar",
+        "@": "peco.ToggleSingleKeyJump",
+        "M-a": "peco.SelectAll"
+    },
+    "SingleKeyJump": {
+        "ShowPrefix": true
+    }
+}
