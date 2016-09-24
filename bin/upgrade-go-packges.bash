@@ -86,6 +86,21 @@ COMMAND_PACKAGE="
 "
 
 LIBRARY_PACKAGE="
+  golang.org/x/arch/... \
+  golang.org/x/benchmarks/... \
+  golang.org/x/crypto/... \
+  golang.org/x/debug/... \
+  golang.org/x/example/... \
+  golang.org/x/exp/... \
+  golang.org/x/image/... \
+  golang.org/x/mobile/... \
+  golang.org/x/net/... \
+  golang.org/x/oauth2/... \
+  golang.org/x/sync/... \
+  golang.org/x/sys/... \
+  golang.org/x/text/... \
+  golang.org/x/time/... \
+  golang.org/x/tools/... \
   github.com/google/go-github \
   github.com/google/syzkaller \
   github.com/google/uuid \
@@ -95,8 +110,6 @@ LIBRARY_PACKAGE="
   github.com/termie/go-shutil \
   github.com/tinylib/msgp \
   github.com/tinylib/synapse \
-  golang.org/x/mobile/... \
-  golang.org/x/tools/... \
 "
 
 EXCEPTION_PACKAGE="
@@ -129,6 +142,6 @@ cd $GOPATH/src/github.com/github/hub
 
 printf "\x1b[34;40mdelve:\x1b[0m Installing ...\n"
 cd $GOPATH/src/github.com/derekparker/delve
-CERT=dlv-cert command make install
+CERT=dlv_codesign command make install
 
 cd $CURRENT
