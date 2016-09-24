@@ -2,11 +2,10 @@ hash -d zsh=$HOME/.zsh/
 
 # Go
 hash -d go=/usr/local/go/
-hash -d gosrc=/usr/local/go/src
 hash -d gopath=$GOPATH/src/github.com/zchee
 hash -d gosandbox=$HOME/go/src/github.com/zchee/go-sandbox
 
-# user local
+# /usr/local
 hash -d ulocal=/usr/local
 hash -d bin=/usr/local/bin
 hash -d brew=/usr/local/opt
