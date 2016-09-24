@@ -1,0 +1,9 @@
+#
+# Wrapper of tree command, add '-L 2' flag automatically if no flags.
+#
+
+if ! [[ "$1" ]]; then
+	command tree -L 2
+else
+	command tree "$@"
+fi
