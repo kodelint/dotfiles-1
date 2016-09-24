@@ -8,7 +8,7 @@
 
 # docker alias
 # Images
-# alias di="docker images" # Get images
+alias doi="docker images" # Get images
 # Containers
 alias dpa="docker ps -a" # Get container process
 alias dl="docker ps -l -q" # Get latest container ID
@@ -24,7 +24,9 @@ alias dri='docker run --rm -i -t -P' # Run interactive container, e.g., $dki bas
 # build dockerfile
 dbu() { docker build --rm -t="$1" $2 .; }
 # Run docker container
-drun() { docker run $1 --rm ; }
+drun() { docker run --rm  $@;}
+# Run docker container with interactive and allocate a pseudo-tty
+druni() { docker run --rm -it $@;}
 # Start all containers
 dstart() { "docker" start $("docker" ps -a -q); }
 # Stop all containers
