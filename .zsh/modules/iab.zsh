@@ -5,11 +5,10 @@ abbreviations=(
   "A"    "| ag"
   "C"    "\`ls | cho\`"
   "D"    "--debug"
-  "E"    "2>&1 > /dev/null" # >/dev/null 2>&1
   "G"    "| grep"
   "H"    "| pt"
   "L"    "| less"
-  "N"    "> /dev/null"
+  "N"    "> /dev/null 2>&1"
   "P"    "| pbcopy"
   "S"    "| sed"
   "T"    "| tail"
