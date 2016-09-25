@@ -1,9 +1,12 @@
+# zleiab
+# vim like abbreviation
+# zshwiki.org: http://zshwiki.org/home/examples/zleiab
+
 setopt EXTENDED_GLOB
 
 typeset -A abbreviations
 abbreviations=(
-  "A"    "| ag"
-  "C"    "\`ls | cho\`"
+  "A"    "| awk"
   "D"    "--debug"
   "G"    "| grep"
   "H"    "| pt"
@@ -12,7 +15,7 @@ abbreviations=(
   "P"    "| pbcopy"
   "S"    "| sed"
   "T"    "| tail"
-  # "W"    "| wc"
+  "W"    "| wc -l"
   "X"    "| xargs"
 )
 
@@ -33,5 +36,5 @@ bindkey " " magic-abbrev-expand
 bindkey "^x " no-magic-abbrev-expand
 
 # }}}
-####################################################################################################
-if [[ -n $ZSH_DEBUG ]]; then; echo 'Finished $HOME/.zsh/modules/iab.zsh'; fi
+# -----------------------------------------------------------------------------
+if [[ -n $ZSH_DEBUG ]]; then; echo 'Finished $HOME/.zsh/modules/zleiab.zsh'; fi
