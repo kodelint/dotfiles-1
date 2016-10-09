@@ -1,4 +1,4 @@
-# Change directory with auto ls
+# Change directory with auto ls {{{
 # -A : Do not show . and ..
 # -C : Force multi-column output.
 # -F : Append indicator (one of */=>@|) to entries.\
@@ -29,5 +29,6 @@ autoload -Uz add-zsh-hook ls_abbrev
 add-zsh-hook chpwd ls_abbrev
 
 # }}}
-####################################################################################################
-if [[ -n $ZSH_DEBUG ]]; then; echo 'Finished $HOME/.zsh/modules/ls_abbrev.zsh'; fi
+# -----------------------------------------------------------------------------
+[[ $ZSH_DEBUG = '1' ]] && echo 'Finished $HOME/.zsh/modules/ls_abbrev.zsh'
+# vim:ft=zsh:sts=2:sw=2:ts=2:et

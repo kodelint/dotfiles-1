@@ -2,7 +2,8 @@
 # peco {{{
 #
 
-# History search
+# -----------------------------------------------------------------------------
+# History search {{{
 #  - Search shell history with peco
 #  - Adapted from: https://github.com/mooz/percol#zsh-history-search
 #  - https://gist.github.com/jimeh/7d94f1000cfc9cba2893
@@ -15,7 +16,9 @@ zle -N peco_select_history
 bindkey '^r' peco_select_history
 bindkey '^z^r' history-incremental-search-backward
 
-# ghq
+# }}}
+# -----------------------------------------------------------------------------
+# ghq {{{
 #   - http://weblog.bulknews.net/post/89635306479/ghq-peco-percol
 function peco_ghq() {
     local SELECTED_DIR=$(GIT_CONFIG=~/.config/ghq/.gitconfig ghq list -p | peco)
@@ -36,10 +39,12 @@ function peco_ssh() {
   zle clear-screen # refresh
 }
 zle -N peco_ssh
-bindkey '^s' peco_ssh
+# bindkey '^s' peco_ssh
 # alias peco_ssh='peco-ssh'
 
-# peco + godoc
+# }}}
+# -----------------------------------------------------------------------------
+# peco + godoc {{{
 # http://syohex.hatenablog.com/entry/20140620/1403257070
 function pecodoc() {
     local -a go_packages
@@ -59,5 +64,6 @@ function pecodoc() {
 }
 
 # }}}
-####################################################################################################
-if [[ -n $ZSH_DEBUG ]]; then; echo 'Finished $HOME/.zsh/modules/peco.zsh'; fi
+# -----------------------------------------------------------------------------
+[[ $ZSH_DEBUG = '1' ]] && echo 'Finished $HOME/.zsh/modules/peco.zsh'
+# vim:ft=zsh:sts=2:sw=2:ts=2:et

@@ -1,6 +1,5 @@
-#
-# docker zsh aliases
-#
+# -----------------------------------------------------------------------------
+# docker zsh aliases {{{
 
 # docker
 # alias d="docker"
@@ -60,5 +59,6 @@ alias dcu="docker-compose up"
 alias dcud="docker-compose up -d"
 
 # }}}
-####################################################################################################
-if [[ -n $ZSH_DEBUG ]]; then; echo 'Finished $HOME/.zsh/modules/docker.zsh'; fi
+# -----------------------------------------------------------------------------
+[[ $ZSH_DEBUG = '1' ]] && echo 'Finished $HOME/.zsh/modules/docker.zsh'
+# vim:ft=zsh:sts=2:sw=2:ts=2:et
