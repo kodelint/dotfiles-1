@@ -185,9 +185,8 @@ alias p='pt'
 alias juc='jupyter console'
 alias pg='pgrep'
 alias pk='pkill'
-alias pbc='command pbcopy'
-alias pbp='command pbpaste'
-alias t='gotail'
+alias pbcopy='command pbcopy'
+alias pbpaste='command pbpaste'
 
 # config file alias
 alias nru="nvim -c 'call dein#clear_state() | call dein#clear_cache()' -c 'UpdateRemotePlugins' -c 'q' >/dev/null; cat ${HOME}/.nvim/.init.vim-rplugin\~"
