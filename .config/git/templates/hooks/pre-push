@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# $1: remote
+# $2: branch
+# eg: git push zchee master
+#  $1 == zchee
+#  $2 == git@github.com:zchee/foorepository.git
+# echo "$1\n$2"
+
+if [ "$(git log -1 --pretty=format:'%s')" = 'WIP' ]; then
+  echo -e "Do not commit with \x1b[7m'WIP'\x1b[0m message only."
+  exit 1
+fi
+
+rootPath=$(git rev-parse --show-toplevel)
+basedir=$(basename $(dirname $rootPath))
+
+user=$(git config github.user) || 'osxcc'
+
+if [ "$basedir" != "osxcc" ] && [ "$basedir" != "$user" ]; then
+  branch="$(git symbolic-ref HEAD 2>/dev/null)" || \
+         "$(git describe --contains --all HEAD)"
+
+  if [ "${branch##refs/heads/}" = "master" ] && [ "$1" == "origin" ]; then  
+    echo "Do not commit for the \x1b[7mnot ownered\x1b[0m master branch"
+    exit 1
+  fi
+fi
