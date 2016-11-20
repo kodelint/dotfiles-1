@@ -41,14 +41,25 @@ set -e
 #   - libcxx(abi) rpath issue
 #     - for libcxx(abi) rpath issue: https://github.com/Homebrew/homebrew-core/issues/3087#issuecomment-234080878
 
+if readlink -f >/dev/null 2>&1; then
+  DIRNAME="$(readlink -f .)"
+else
+  DIRNAME=`perl -e 'use Cwd "abs_path";print abs_path(shift)' .`
+fi
+
+
 # Warning for have not '*build*' in current dir name
-if ! [[ $(readlink -f .) == *build* ]]; then
+if ! [[ $DIRNAME == *build* ]]; then
   echo "Current directory have not *build* name."; exit 1
 elif ! $(hash clang); then
   echo "Not found 'clang'."; exit 1
 elif ! $(hash cmake); then
   echo "Not found 'cmake'."; exit 1
 fi
+
+warn() {
+  echo -e "\x1b[7m$1\e[0m"
+}
 
 
 CCACHE=''
@@ -60,11 +71,11 @@ fi
 
 
 if hash sysctl && [[ $(uname -s) == 'Darwin' ]]; then
-  JOBS=$(sysctl -n hw.ncpu)
+  JOBS=$(($(sysctl -n hw.ncpu) + 1))
 elif hash nproc; then
-  JOBS=$(nproc)
+  JOBS=$(($(nproc)+1))
 else
-  JOBS=8
+  JOBS=9
 fi
 
 
@@ -88,43 +99,57 @@ PYTHON_INCLUDE_DIR=$(find $("$PYTHON_CONFIG" --prefix)/include -name 'python*' -
 PYTHON_LIBRARY=$(find $("$PYTHON_CONFIG" --prefix)/lib -name 'libpython*' -maxdepth 1)
 
 
-# define dependencies packages
+# dependencies packages
+
+# Python
 if hash "$PYTHON_CONFIG"; then
   PYTHON="\
     -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE \
     -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR \
     -DPYTHON_LIBRARY=$PYTHON_LIBRARY"
 else
-  echo 'Not support Python bindings'
+  warn 'Not support Python bindings'
 fi
 
+# libxml2
 if hash xml2-config; then
   LIBXML2="\
     -DLIBXML2_INCLUDE_DIR="$(xml2-config --prefix)/include/libxml2" \
     -DLIBXML2_LIBRARIES="$(xml2-config --prefix)/lib/libxml2.dylib" \
     -DLIBXML2_XMLLINT_EXECUTABLE="$(xml2-config --prefix)/bin/xmllint""
 else
-  echo 'Not support libxml2'
+  warn 'Not support libxml2'
 fi
 
+# libffi
 if pkg-config libffi; then
   LIBFFI="\
     -DFFI_INCLUDE_DIR="$(pkg-config libffi --variable=includedir)" \
     -DFFI_LIBRARY_DIR="$(pkg-config libffi --variable=libdir)""
 else
-  echo 'Not support libffi'
+  warn 'Not support libffi'
 fi
 
-if test -n /usr/local/opt/ncurses; then
-  CURSES_BIN="/usr/local/opt/ncurses/bin/ncurses6-config"
-  CURSES="\
-    -DCURSES_INCLUDE_PATH="$($CURSES_BIN --includedir)" \
-    -DCURSES_CURSES_LIBRARY="$($CURSES_BIN --libdir)/libcurses.dylib" \
-    -DCURSES_FORM_LIBRARY="$($CURSES_BIN --libdir)/libform.dylib" \
-    -DCURSES_NCURSES_LIBRARY="$($CURSES_BIN --libdir)/libncurses.dylib" \
-    -DCURSES_PANEL_LIBRARY="$($CURSES_BIN --libdir)/libpanel.dylib""
+# ncurses(lldb)
+if test -n /usr/local/opt/ncurses || hash ncurses5.4-config; then
+  NCURSES_CONFIG="$(which ncurses6-config)" || "$(which ncurses5.4-config)"
+  NCURSES_INCLUDE="$($NCURSES_CONFIG --includedir)"
+  NCURSES_LIBDIR="$($NCURSES_CONFIG --libdir)"
+  NCURSES="\
+    -DCURSES_INCLUDE_PATH="$NCURSES_INCLUDE" \
+    -DCURSES_CURSES_LIBRARY="$NCURSES_LIBDIR/libcurses.dylib" \
+    -DCURSES_FORM_LIBRARY="$NCURSES_LIBDIR/libform.dylib" \
+    -DCURSES_NCURSES_LIBRARY="$NCURSES_LIBDIR/libncurses.dylib" \
+    -DCURSES_PANEL_LIBRARY="$NCURSES_LIBDIR/libpanel.dylib""
 else
-  echo 'Not support ncurses'
+  warn 'Not support ncurses'
+fi
+
+# hwloc
+if [[ -n /usr/local/lib/libhwloc.dylib ]]; then
+  USE_HWLOC=ON
+else
+  USE_HWLOC=OFF
 fi
 
 SRC_DIR=$1
@@ -146,7 +171,7 @@ Custom dependency packages:
   $PYTHON
   $LIBXML2
   $LIBFFI
-  $CURSES"
+  $NCURSES"
 
 # Usage
 usage() {
@@ -224,7 +249,7 @@ command cmake $1 -G "$2" \
   -DLIBCLANG_BUILD_STATIC:BOOL=ON \
   \
   -DLIBCXXABI_ENABLE_ASSERTIONS:BOOL=OFF \
-  -DLIBCXXABI_USE_LLVM_UNWINDER:BOOL=ON \
+  -DLIBCXXABI_USE_LLVM_UNWINDER:BOOL=OFF \
   \
   -DLIBCXX_ABI_UNSTABLE:BOOL=ON \
   -DLIBCXX_CONFIGURE_IDE:BOOL=ON \
@@ -234,11 +259,10 @@ command cmake $1 -G "$2" \
   -DLIBOMP_ARCH:STRING="x86_64" \
   -DLIBOMP_ENABLE_SHARED:BOOL=ON \
   -DLIBOMP_OSX_ARCHITECTURES:STRING="x86_64" \
-  -DLIBOMP_USE_HWLOC:BOOL=ON \
+  -DLIBOMP_USE_HWLOC:BOOL=$USE_HWLOC \
   \
   -DLLDB_EXPORT_ALL_SYMBOLS:BOOL=ON \
   \
-  -DLIBCXXABI_USE_LLVM_UNWINDER:BOOL=ON \
   -DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON \
   -DLLVM_BUILD_GLOBAL_ISEL:BOOL=ON \
   -DLLVM_BUILD_LLVM_C_DYLIB:BOOL=ON \
@@ -270,7 +294,9 @@ command cmake $1 -G "$2" \
   -DWITH_POLLY:BOOL=ON \
   \
   -DLLVM_ENABLE_LTO:STRING=OFF \
-  -DLLVM_TOOL_LTO_BUILD:BOOL=OFF \
+  -DLLVM_TOOL_LTO_BUILD:BOOL=ON \
+  \
+  -DSPHINX_OUTPUT_MAN:BOOL=ON \
   \
   $(echo $CCACHE) \
   \
