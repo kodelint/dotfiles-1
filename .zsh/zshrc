@@ -8,56 +8,31 @@ if [[ -n $ZSH_DEBUG ]]; then; echo 'Loading $HOME/.zshrc'; fi
 # }}}
 ###################################################################################################
 
-# Load local modules
-
-source "$HOME/.zsh/alias.zsh"
-source "$HOME/.zsh/completion.zsh"
-source "$HOME/.zsh/dirhash.zsh"
-source "$HOME/.zsh/function.zsh"
-source "$HOME/.zsh/history.zsh"
-source "$HOME/.zsh/key-bindings.zsh"
-source "$HOME/.zsh/prompt.zsh"
-
-source "$ZSH_MODULE/brew.zsh"
-source "$ZSH_MODULE/docker.zsh"
-source "$ZSH_MODULE/git.zsh"
-source "$ZSH_MODULE/iab.zsh"
-source "$ZSH_MODULE/ls_abbrev.zsh"
-source "$ZSH_MODULE/peco.zsh"
-
-source "$ZSH_PLUGIN/zsh-users/zsh-completions/zsh-completions.plugin.zsh"
-source "$ZSH_PLUGIN/zsh-users/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-
-# }}}
-###################################################################################################
-
 # Terminal settings
+# -ixon: disable START/STOP output
+# stop|start undef: disable scren lock for Ctl-S. needs even use -ixon
+# speed extb: workstation io speed. extb is 38400(max)
+#
+# defaults:
+#  speed 9600 baud; rows 92; columns 425;
+#  intr = ^C; quit = ^\; erase = ^?; kill = ^U; eof = ^D; eol = <undef>; eol2 = <undef>; start = ^Q; stop = ^S; susp = ^Z; dsusp = ^Y; rprnt = ^R; werase = ^W; lnext = ^V; discard = ^O; status = ^T; min = 1; time = 0;
+#  -parenb -parodd cs8 hupcl -cstopb cread -clocal -crtscts
+#  -ignbrk brkint -ignpar -parmrk -inpck -istrip -inlcr -igncr icrnl ixon -ixoff ixany imaxbel iutf8
+#  opost -ocrnl onlcr -onocr -onlret -ofill -ofdel nl0 cr0 tab0 bs0 vt0 ff0
+#  isig icanon iexten echo echoe -echok -echonl -noflsh -tostop -echoprt echoctl echoke -flusho -extproc
 
-stty -ixon
-stty -iutf8
-stty speed 115200 > /dev/null
+stty -iutf8 -ixon stop undef start undef speed extb > /dev/null 2>&1
 
 # }}}
 ###################################################################################################
 
-# Zsh Global {{{
+# Zsh configs {{{
 
-# Set the Zsh modules to load (man zshmodules)
-# Load Zsh modules
-zstyle ':z:load' zmodule 'zsh/attr' 'zsh/stat' 'zsh/pcre' 'zsh/net/socket' 'zsh/db/gdbm'
-zstyle -a ':z:load' zmodule 'zmodules'
-for zmodule ("$zmodules[@]") zmodload "${(z)zmodule}"
-unset zmodule{s,}
+# Load the zsh modules (module list available on man zshmodules)
+zmodload 'zsh/attr' 'zsh/stat' 'zsh/pcre' 'zsh/net/socket' 'zsh/db/gdbm'
+# Initialize the commnad completions
+autoload -Uz compdef compinit; compinit
 
-# Set the Zsh functions to load (man zshcontrib)
-# Autoload Zsh functions
-zstyle ':z:load' zfunction 'mcd' 'n' 'nv' 'date' 'cmakeclean' 'cd' 'man' 'jman' 'findcomp' 'findsymlink' 'shasumcheck' 'unsetm' 'mangrep' 'echoenv' 'tree' 'gen'
-zstyle -a ':z:load' zfunction 'zfunctions'
-for zfunction ("$zfunctions[@]") autoload -Uz "$zfunction"
-unset zfunction{s,}
-
-sumcheck() { curl -L --silent $1 | shasum -a 256 | awk '{print $1}' }
-unsetm() {for e in $(env | grep -E "^$1" | awk -F = '{print $1}'); do unset $e; done}
 
 REPORTTIME=3               # Output zsh command response
 unsetopt CORRECT           # Disable zsh correct
@@ -83,13 +58,22 @@ unsetopt CLOBBER            # Do not overwrite existing files with > and >>.
 
 # }}}
 ###################################################################################################
+
+# Load local modules
+
+for f in $(print -l ${HOME}/.zsh/*.zsh $ZSH_MODULE/*.zsh $ZSH_PLUGIN/zsh-users/{zsh-completions,zsh-syntax-highlighting}/*.plugin.zsh);
+  do source $f
+done
+
+# }}}
+###################################################################################################
 #
 # Zsh history {{{
 #
 
-HISTFILE=~/.zsh_history
-HISTSIZE=5000000000000            # Memory History size
-SAVEHIST=10000000000000           # Save History size
+HISTFILE="${HOME}/.zsh_history"
+HISTSIZE=5000000000000           # Memory History size
+SAVEHIST=10000000000000          # Save History size
 setopt BANG_HIST                 # Treat the '!' character specially during expansion
 setopt EXTENDED_HISTORY          # Write the history file in the ':start:elapsed;command' format
 setopt HIST_EXPAND               # Expand automatically history to completion
@@ -128,10 +112,18 @@ ZSH_HIGHLIGHT_STYLES[precommand]=bg=blue
 # ZSH_HIGHLIGHT_STYLES[assign]=none
 
 # }}}
-###################################################################################################
-if [[ -n $ZSH_DEBUG ]]; then; echo 'Finished $HOME/.zshrc'; fi
+# -----------------------------------------------------------------------------
 
-# Evaluate system PATH
-if [ -x /usr/libexec/path_helper ]; then
-  eval `/usr/libexec/path_helper -s`
-fi
+# Functions: {{{
+
+# Load the all function script under the ${HOME}/.zsh/functions
+autoload -Uz $(print ${HOME}/.zsh/functions/*(:t)) # (:t) is strip to filename only
+
+# }}}
+# -----------------------------------------------------------------------------
+[[ $ZSH_DEBUG ]] && zprof && echo 'Finished $HOME/.zshrc'
+
+
+# tabtab source for yarn package
+# uninstall by removing these lines or running `tabtab uninstall yarn`
+[[ -f /usr/local/var/nodebrew/node/v7.1.0/lib/node_modules/yarn-completions/node_modules/tabtab/.completions/yarn.zsh ]] && . /usr/local/var/nodebrew/node/v7.1.0/lib/node_modules/yarn-completions/node_modules/tabtab/.completions/yarn.zsh

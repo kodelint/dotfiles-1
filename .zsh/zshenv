@@ -1,9 +1,13 @@
 # zshenv {{{
 # Defines environment variables
-# export ZSH_DEBUG=1
-[[ -n $ZSH_DEBUG ]] && echo 'Loading zshenv'
-# -----------------------------------------------------------------------------
 #
+# for debug and calc startuptime
+#  ZSH_DEBUG=1 exec -l zsh
+#  ZSH_DEBUG=1 ex # relaunch zsh function
+
+[[ $ZSH_DEBUG = '1' ]] && echo 'Loading zshenv' && zmodload zsh/zprof
+
+# -----------------------------------------------------------------------------
 # References {{{
 #
 # XDG Based Directory environment variables
@@ -36,11 +40,11 @@
 # TODO: needs 'local'?
 
 if [[ -d "/Applications/Xcode-beta.app/Contents/Developer" ]]; then
-  export DEVELOPER_DIR="/Applications/Xcode-beta.app/Contents/Developer"
+  export XCODE_DIR="/Applications/Xcode-beta.app/Contents/Developer"
 elif [[ -d "/Applications/Xcode.app/Contents/Developer" ]]; then
-  export DEVELOPER_DIR="/Applications/Xcode.app/Contents/Developer"
+  export XCODE_DIR="/Applications/Xcode.app/Contents/Developer"
 fi
-# export DEVELOPER_DIR="$(xcode-select -p)"
+MACOS_SDK_DIR=$(xcrun --show-sdk-path)
 ZSH_PLUGIN=$HOME/.zsh/plugins
 ZSH_MODULE=$HOME/.zsh/modules
 DOTFILES=$HOME/src/github.com/zchee/dotfiles
@@ -49,10 +53,9 @@ DOTFILES=$HOME/src/github.com/zchee/dotfiles
 # -----------------------------------------------------------------------------
 # System {{{
 
-command ulimit -n 10000
+command ulimit -n 10000 ## exec
 export ZSH_COLORS=1
-# bash like time output
-# export TIMEFMT=$'\nreal\t%E\nuser\t%U\nsys\t%S'
+# export TIMEFMT=$'\nreal\t%E\nuser\t%U\nsys\t%S' # bash like time output
 
 # }}}
 # -----------------------------------------------------------------------------
@@ -75,11 +78,11 @@ export CACHE=$XDG_CACHE_HOME
 export LC_ALL='en_US.UTF-8'
 export LANG='en_US.UTF-8'
 export SHELL="/usr/local/bin/zsh"
-export TERM='xterm-256color'
 export TERMINFO='/usr/local/share/terminfo'
+# export TERMINFO=$HOME/.terminfo
+export TERM='xterm-256color'
 
 # Affected in all CUI tools
-export BROWSER="/Applications/Chromium.app/Contents/MacOS/Chromium"
 export EDITOR="nvim"
 export MANPAGER='less -R'
 export PAGER='less -R'
@@ -88,135 +91,59 @@ export VISUAL="nvim"
 export CLICOLOR=1
 export BLOCKSIZE=1k
 
-if [[ "$OSTYPE" == darwin* ]]; then
-  export BROWSER=/Applications/Chromium.app/Contents/MacOS/Chromium # for pprof
-fi
+# if [[ "$OSTYPE" == darwin* ]]; then
+#   export BROWSER="/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary" # for pprof
+# fi
 
-export PROMPT_EOL_MARK='%'
+export PROMPT_EOL_MARK='%' # zsh defaults
 
 # }}}
 # -----------------------------------------------------------------------------
 # Build {{{
 
-# ARFLAGS  - for ar achiver
-# ASFLAGS  - for as assembler
-# COFLAGS  - for co utility
-# CPPFLAGS - for C preprocessor
-# CXXFLAGS - for c++ compiler
-# FFLAGS   - for Fortran compiler
-# LFLAGS   - for lex
-# PFLAGS   - for Pascal compiler
-# YFLAGS   - for yacc
+# ARFLAGS   - for ar achiver
+# ARCHFLAGS - for arch config
+# ASFLAGS   - for as assembler
+# COFLAGS   - for co utility
+# CPPFLAGS  - for C preprocessor
+# CXXFLAGS  - for c++ compiler
+# FFLAGS    - for Fortran compiler
+# LFLAGS    - for lex
+# PFLAGS    - for Pascal compiler
+# YFLAGS    - for yacc
 
-# export CC='clang'
-export CC="$(xcrun -f clang)"
+# export CC="$(xcrun -f clang)"
+# export CXX="${CC}++"
+export CC=clang
 export CXX="${CC}++"
+# export AR=llvm-ar
+# export LD=lld
+# export NM=llvm-nm
+# for typical C bindings that assume to build both of x86_64 and i386,
+# such as python library using libuv
+# https://developer.apple.com/library/content/releasenotes/OpenSource/PerlExtensionsRelNotes/index.html#//apple_ref/doc/uid/TP40006659
 export ARCHFLAGS='-arch x86_64'
-# export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
 
-# export MAKEFLAGS="-j $(($(/opt/coreutils/bin/nproc)+1))" # exec command too slow
-export MAKEFLAGS="-j 9"
-export MACOSX_DEPLOYMENT_TARGET=10.12
+# $MAKEFLAG no longer set. GNU-gcc documents said "no -j is added MAKEFLAGS".
+# https://www.gnu.org/software/make/manual/html_node/Options_002fRecursion.html#Options_002fRecursion
+export MAKEFLAGS='-j 8'
+
+export CCACHE_CPP2=1
+export CCACHE_HASHDIR=1
+export CCACHE_SLOPPINESS=time_macros
 
 # }}}
 # -----------------------------------------------------------------------------
-# Tools {{{
 
-# Neovim
-export NVIM_TUI_ENABLE_CURSOR_SHAPE=1
-export NVIM_LISTEN_ADDRESS='/tmp/nvim'
-# export NVIM_CHILD_ARGV='["nvim", "-u", "NONE", "--embed"]'
-# Logging for development plugins
-export NVIM_VERBOSE_LOG_FILE="${XDG_LOG_HOME}/nvim/verbose.log"
-export NVIM_GO_DEBUG=1
-if [[ -d "${XDG_LOG_HOME}/nvim/go" ]]; then
-  mkdir -p "${XDG_LOG_HOME}/nvim/go"
-fi
-if [[ -d "${XDG_LOG_HOME}/nvim/python" ]]; then
-  mkdir -p "${XDG_LOG_HOME}/nvim/python"
-fi
-export NEOVIM_GO_LOG_FILE="${XDG_LOG_HOME}/nvim/go/neovim-go.log"
-# If always export NVIM_PYTHON_LOG_FILE, nvim will be parse log file path
-# export NVIM_PYTHON_LOG_FILE="${XDG_LOG_HOME}/nvim/python/python-client.log"
-# export NVIM_PYTHON_LOG_LEVEL="DEBUG"
-export NVIM_IPY_DEBUG_FILE="${XDG_LOG_HOME}/nvim/python/nvim-ipy.log"
-export NVIM_DEOPLETE_LOG_FILE="${XDG_LOG_HOME}/nvim/python/deoplete.log"
-export NVIM_DEOPLETE_JEDI_LOG_FILE="${XDG_LOG_HOME}/nvim/python/deoplete.log"
-export NVIM_DEOGOTO_LOG_FILE="${HOME}/.local/var/log/nvim/python/deogoto.log"
+# macOS {{{
 
+# Clang handling that macOS kernel version.
+export MACOSX_DEPLOYMENT_TARGET=10.12
 
-# gdb
-export GDBHISTFILE="$HOME/.history/.gdb_history"
-
-
-# cURL
-#  - Ref: https://gist.github.com/1stvamp/2158128#gistcomment-1573222
-#  - Ref: https://github.com/smdahlen/vagrant-digitalocean/issues/123
-# export CURL_CA_BUNDLE="/usr/local/etc/openssl/certs/cert.pem"
-export CURL_CA_BUNDLE="/usr/local/etc/libressl/cert.pem"
-
-
-
-# Docker
-# Machine
-export MACHINE_DEBUG=1
-export MACHINE_DRIVER_DEBUG=1
-export MACHINE_DOCKER_INSTALL_URL="https://experimental.docker.com" # Always use experimental install
-export MACHINE_NATIVE_SSH=1
-
-# grep
-export GREP_COLOR='30;43'           # BSD
-export GREP_COLORS="mt=$GREP_COLOR" # GNU
-
-# dircolors
-# eval "$(/opt/coreutils/bin/dircolors --sh)"
-export LS_COLORS='rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=01;37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:';
-
-
-# Less
-# Set the default Less options.
-# Mouse-wheel scrolling has been disabled by -X (disable screen clearing).
-# Remove -X and -F (exit if the content fits on one screen) to enable it.
-export LESS='-g -i -M -R -S -w -z -4 -X -F'
-# export LESS=-asrRix8
-export LESSOPEN='| src-hilite-lesspipe.sh %s'
-# Set the Less input preprocessor.
-# Try both `lesspipe` and `lesspipe.sh` as either might exist on a system.
-if (( $#commands[(i)lesspipe(|.sh)] )); then
-    export LESSOPEN="| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-"
-fi
-
-
-# google cloud sdk
-# gcloud support only python2 when install gcloud
-export CLOUDSDK_PYTHON="python2"
-
-
-# z.sh
-export _Z_DATA="${XDG_CACHE_HOME}/z/.z"
-if ! [ -f "$_Z_DATA" ]; then
-    mkdir -p "${XDG_CACHE_HOME}/z"
-    touch "$_Z_DATA"
-fi
-
-
-# nq
-# TODO: Need more useful managing job tool written Go
-export NQDIR=/tmp/nq
-if [[ ! -d "$NQDIR" ]]; then
-    mkdir "$NQDIR"
-fi
-
-
-# jtool, procexp
-export JCOLOR=1
-
-
-# Homebrew
-export HOMEBREW_CACHE="${XDG_CACHE_HOME}/Homebrew"
-export HOMEBREW_MAKE_JOBS=8
-export HOMEBREW_VERBOSE=1
-export HOMEBREW_CASK_OPTS="--appdir=/Applications --caskroom=/Applications/Caskroom"
+# nicm(tmux-dev) said, kqueue is broken on macOS.
+# Might be it is effective other case such as Chromium.
+# xref: https://github.com/tmux/tmux/issues/475#issuecomment-231527159
+# export EVENT_NOKQUEUE=1
 
 # }}}
 # -----------------------------------------------------------------------------
@@ -224,20 +151,20 @@ export HOMEBREW_CASK_OPTS="--appdir=/Applications --caskroom=/Applications/Caskr
 
 # Go
 export GOPATH="${HOME}/go"
-# export GOROOT_BOOTSTRAP="/usr/local/go-darwin-amd64-bootstrap"
-export GOROOT_BOOTSTRAP="/usr/local/bootstrap/go/go1.7.1"
-export GO15VENDOREXPERIMENT=1
-export CGO_ENABLED=1
+export GOROOT_BOOTSTRAP="/usr/local/bootstrap/go1.7.3"
 
 
 # Python
 # It is strongly recommended that PYTHONHOME and PYTHONPATH be unset,
 # as they can interfere with the Intel® Distribution for Python for OS X.
-# export PYTHON_CONFIGURE_OPTS="--enable-shared"
 # export PYTHONSTARTUP="${XDG_CONFIG_HOME}/python/.pythonrc"
+export PYTHONOPTIMIZE=1
+# export PYTHONASYNCIODEBUG=1 # enable the debug mode of the asyncio module
 # pyenv
-# export PYENV_ROOT=/usr/local/var/pyenv
-# export VIRTUAL_ENV_DISABLE_PROMPT=1
+if [ -n '/usr/local/var/pyenv' ]; then
+  export PYENV_ROOT=/usr/local/var/pyenv
+  export VIRTUAL_ENV_DISABLE_PROMPT=1
+fi
 # Jupyter
 export JUPYTER_RUNTIME_DIR="${XDG_RUNTIME_DIR}/jupyter"
 export JUPYTER_CONFIG_DIR="${XDG_CONFIG_HOME}/jupyter"
@@ -249,7 +176,7 @@ export PIP_FLAGS='--user'
 
 
 # OCaml
-eval `opam config env`
+eval `/usr/local/bin/opam config env` ## exec
 
 
 # Ruby
@@ -262,14 +189,10 @@ export NODE_REPL_HISTORY="${HOME}/.history/node/.node_repl_history"
 
 
 # Java
-# export JENV_ROOT=/usr/local/var/jenv
-# if which jenv > /dev/null; then eval "$(jenv init -)"; fi
-# export JAVA_HOME=$(/usr/libexec/java_home)
-# export JAVA_HOME='/Library/Java/JavaVirtualMachines/jdk-9.jdk/Contents/Home'
 
 
 # API token
-. "$XDG_DATA_HOME/token/token"
+source "$XDG_DATA_HOME/token/token"
 
 
 # asciidoc (brew)
@@ -287,40 +210,131 @@ export BORG_REPO="/Volumes/WD20EZRX/borg"
 # postgresql
 export PGDATA="/usr/local/var/postgres"
 
+# }}}
+# -----------------------------------------------------------------------------
+# Tools {{{
 
-# gnulib issue (brew)
-export gl_cv_func_getcwd_abort_bug="no"
+# Neovim:
+export NVIM_TUI_ENABLE_CURSOR_SHAPE=1
+export NVIM_LISTEN_ADDRESS='/tmp/nvim'
+# export NVIM_CHILD_ARGV='["nvim", "-u", "NONE", "--embed"]'
+export NVIM_VERBOSE_LOG_FILE="${XDG_LOG_HOME}/nvim/verbose.log"
+# Logging for development plugins
+export NVIM_GO_LOG_FILE="${XDG_LOG_HOME}/nvim/go/neovim-go.log"
+export NVIM_GO_DEBUG=1
+if [[ -d "${XDG_LOG_HOME}/nvim/go" ]]; then
+  mkdir -p "${XDG_LOG_HOME}/nvim/go"
+fi
+if [[ -d "${XDG_LOG_HOME}/nvim/python" ]]; then
+  mkdir -p "${XDG_LOG_HOME}/nvim/python"
+fi
+
+# If always export NVIM_PYTHON_LOG_FILE, nvim will be parse log file path
+# export NVIM_PYTHON_LOG_FILE="${XDG_LOG_HOME}/nvim/python/python-client.log"
+# export NVIM_PYTHON_LOG_LEVEL="DEBUG"
+export NVIM_IPY_DEBUG_FILE="${XDG_LOG_HOME}/nvim/python/nvim-ipy.log"
+export NVIM_DEOPLETE_LOG_FILE="${XDG_LOG_HOME}/nvim/python/deoplete.log"
+export NVIM_DEOPLETE_JEDI_LOG_FILE="${XDG_LOG_HOME}/nvim/python/deoplete.log"
+export NVIM_DEOGOTO_LOG_FILE="${HOME}/.local/var/log/nvim/python/deogoto.log"
+
+
+# GDB:
+export GDBHISTFILE="$HOME/.history/.gdb_history"
+
+
+# cURL:
+#  - Ref: https://gist.github.com/1stvamp/2158128#gistcomment-1573222
+#  - Ref: https://github.com/smdahlen/vagrant-digitalocean/issues/123
+export CURL_CA_BUNDLE="/usr/local/etc/ssl/certs/cert.pem"
+
+
+
+# Docker:
+# Machine
+export MACHINE_DEBUG=1
+export MACHINE_DRIVER_DEBUG=1
+export MACHINE_DOCKER_INSTALL_URL="https://experimental.docker.com" # Always use experimental install
+export MACHINE_NATIVE_SSH=1
+
+# grep
+export GREP_COLOR='30;43'           # BSD
+export GREP_COLORS="mt=$GREP_COLOR" # GNU
+
+
+# Less
+# Set the default Less options.
+# Mouse-wheel scrolling has been disabled by -X (disable screen clearing).
+# Remove -X and -F (exit if the content fits on one screen) to enable it.
+# export LESS='-g -i -M -R -S -w -z -4 -X -F'
+# export LESS=-asrRix8
+export LESS='-gij.5MRsSXw'
+export LESSOPEN='| src-hilite-lesspipe.sh %s'
+# Set the Less input preprocessor.
+# Try both `lesspipe` and `lesspipe.sh` as either might exist on a system.
+if (( $#commands[(i)lesspipe(|.sh)] )); then
+    export LESSOPEN="| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-"
+fi
+
+
+# google cloud sdk
+# gcloud support only python2 when install gcloud
+export CLOUDSDK_PYTHON="python2"
+
+
+# nq
+# TODO: Need more useful managing job tool written Go
+export NQDIR=/tmp/nq
+if [[ ! -d "$NQDIR" ]]; then
+    mkdir "$NQDIR"
+fi
+
+
+# jtool, procexp
+export JCOLOR=1
+
+
+# Homebrew
+export HOMEBREW_CACHE="${XDG_CACHE_HOME}/Homebrew"
+export HOMEBREW_CASK_OPTS="--appdir=/Applications --caskroom=/Applications/Caskroom"
+export HOMEBREW_DEBUG=1
+export HOMEBREW_MAKE_JOBS=8
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_VERBOSE=1
+
+
+# travis cli
+export TRAVIS_CONFIG_PATH="${XDG_CONFIG_HOME}/travis"
+
+# parallel
+export PARALLEL="${XDG_CONFIG_HOME}/parallel"
+
+
+# Misc:
+export GROFF_NO_SGR=0
+export gl_cv_func_getcwd_abort_bug="no" # build gnulib PATH_MAX bugs
 
 # }}}
 # -----------------------------------------------------------------------------
-# Global Environment variables
+# Global Environment variables {{{
 #
 
 # typeset to (lower|upper)case environment variable
 local -a _typeset
 _typeset=(
-  INCLUDE \
-  LD_LIBRARY_PATH \
-  \
-  CLASSPATH \
   CPATH \
-  DAALROOT \
+  INCLUDE \
+  PKG_CONFIG_PATH \
+  \
   DYLD_LIBRARY_PATH \
-  INTEL_LICENSE_FILE \
-  INTEL_PYTHONHOME \
-  IPPROOT \
+  LD_LIBRARY_PATH \
   LIBRARY_PATH \
-  MKLROOT \
-  NLSPATH \
-  PERL5LIB \
-  TBBROOT \
 )
+# Specific directory path (PATH, FPATH, MANPATH, CDPATH) is set by default.
+# No need -xT flag.
 for type in $_typeset[@]; do
   typeset -xT ${type} ${type:l}
 done
-# Specific directory path (PATH, CDPATH, FPATH, MANPATH) is set by default.
-typeset -U path cdpath fpath manpath
-typeset -U "$_typeset[@]:l"
+typeset -U path fpath manpath cdpath "$_typeset[@]:l"
 
 path=(
   # dotfiles scripts
@@ -332,16 +346,15 @@ path=(
   /opt/intel/bin(N-/)
   # Intel® Distribution for Python2 and 3
   /opt/intel/intelpython{3,2}/bin(N-/)
+
   # Apple File System(apfs) command line tools
   /System/Library/Filesystems/apfs.fs/Contents/Resources(N-/)
   # NVIDIA CUDA Toolkit
   /Developer/NVIDIA/CUDA/bin(N-/)
   /usr/local/cuda/bin(N-/)
-  # Docker for Mac pre-compile binary
-  ${HOME}/Library/Group\ Containers/group.com.docker/bin(N-/)
   # google cloud sdk
   ${HOME}/google-cloud-sdk/bin(N-/)
-  # installed with pip, etc
+  # installed by pip, etc
   ${HOME}/.local/bin(N-/)
   # rust
   ${HOME}/.cargo/bin(N-/)
@@ -349,12 +362,9 @@ path=(
   # ${PYENV_ROOT}/{bin,shims}(N-/)
   ${RBENV_ROOT}/{bin,shims}(N-/)
   ${NODEBREW_ROOT}/current/bin(N-/)
-  # ${JENV_ROOT}/bin(N-/)
 
   # brewed GNU {sed, coreutils} with default names
   /usr/local/opt/{gnu-sed,coreutils}/libexec/gnubin(N-/)
-  # brewed GNU tar
-  /usr/local/opt/gnu-tar/bin(N-/)
   # brewed git contrib diff-highlight script
   /usr/local/opt/git/share/git-core/contrib/diff-highlight(N-/)
   # Adobe Font Development Kit (afdko)
@@ -362,15 +372,29 @@ path=(
   # nexosxbook(Author of Mac OS X and iOS Internals book) darwin utility
   ${HOME}/src/newosxbook.com/bin(N-/)
   # Xcode compiler toolchain
-  ${DEVELOPER_DIR}/Toolchains/XcodeDefault.xctoolchain/usr/bin(N-/)
-  ${DEVELOPER_DIR}/usr/bin(N-/)
+  ${XCODE_DIR}/Toolchains/XcodeDefault.xctoolchain/usr/bin(N-/)
+
+  # Docker dev pre-compile binary
+  /opt/docker/bin(N-/)
+
   # Linux filesystem default binary path
-  /usr/local/{bin,sbin}(N-/)
+  /usr/local/{bin,sbin,libexec}(N-/)
+  ${XCODE_DIR}/usr/bin(N-/)
+  # Docker for Mac pre-compile binary
+  /Applications/Docker.app/Contents/Resources/bin(N-/)
+  # CERN root
+  /opt/root/bin(N-/)
   # Oracle Java
   ${JAVA_HOME}/bin(N-/)
   # Linux filesystem default binary path
-  /usr/{bin,sbin}(N-/)
+  /usr/{bin,sbin,libexec}(N-/)
   /{bin,sbin}(N-/)
+
+  # DTraceToolkit
+  ${HOME}/bin/dtt(N-/)
+
+  # vmware fusion command line tools
+  /opt/vmware/bin(N-/)
   ${path}
 )
 
@@ -384,30 +408,32 @@ fpath=(
   ${fpath}
 )
 
-cdpath=(
-  ${GOPATH}/src/github.com(N-/)
-  ${GOPATH}/src/golang.org/x(N-/)
-  ${GOPATH}/src(N-/)
-  ${HOME}/src/github.com(N-/)
-  ${cdpath}
-)
-
 manpath=(
   /opt/intel/man/common(N-/)
   /opt/intel/man/gdb-ia(N-/)
-  /opt/llvm/share/man(N-/)
-  /usr/local/opt/gnu-sed/libexec/gnuman(N-/)
-  /usr/local/opt/gnu-tar/libexec/gnuman(N-/)
   /usr/local/opt/coreutils/libexec/gnuman(N-/)
   /usr/local/share/man(N-/)
-  ${DEVELOPER_DIR}/Toolchains/XcodeDefault.xctoolchain/usr/share/man(N-/)
-  ${DEVELOPER_DIR}/usr/share/man(N-/)
+  ${XCODE_DIR}/Toolchains/XcodeDefault.xctoolchain/usr/share/man(N-/)
+  ${XCODE_DIR}/usr/share/man(N-/)
   /usr/share/man(N-/)
-  /opt/coreutils/share/man(N-/)
-  /opt/binutils/share/man(N-/)
   /usr/local/share/linux(N-/)
-  /opt/cern/root/man(N-/)
+  /opt/root/man(N-/)
+  # for ja_JP
+  /usr/local/share/man/freebsd(N-/)
   ${manpath}
+)
+
+cdpath=(
+  ${GOPATH}/src/{github.com,golang.org/x/,}(N-/)
+  ${GOPATH}/src(N-/)
+  ${HOME}/src/{github.com,opensource.apple.com}(N-/)
+  ${cdpath}
+)
+
+cpath=(
+  /usr/local/include(N-/)
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include(N-/)
+  ${cpath}
 )
 
 include=(
@@ -417,10 +443,21 @@ include=(
   /usr/local/cuda/include(N-/)
   /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/include(N-/)
   /usr/local/include(N-/)
-  $(xcrun --show-sdk-path)/usr/include(N-/)
+  ${MACOS_SDK_DIR}/usr/include(N-/)
   ${HOME}/src/newosxbook.com/include(N-/)
   /usr/include(N-/)
   ${include}
+)
+
+pkg_config_path=(
+  /usr/local/lib/pkgconfig
+  /usr/lib/pkgconfig
+  ${pkg_config_path}
+)
+
+dyld_library_path=(
+  /Developer/NVIDIA/CUDA/lib(N-/)
+  ${dyld_library_path}
 )
 
 ld_library_path=(
@@ -431,74 +468,19 @@ ld_library_path=(
   /usr/local/cuda/lib(N-/)
   /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib(N-/)
   /usr/local/lib(N-/)
-  $(xcrun --show-sdk-path)/usr/lib(N-/)
+  ${MACOS_SDK_DIR}/usr/lib(N-/)
   /usr/lib(N-/)
   ${ld_library_path}
 )
 
-dyld_library_path=(
-  /opt/intel/compilers_and_libraries/mac/lib(N-/)
-  /opt/intel/compilers_and_libraries/mac/lib/intel64(N-/)
-  /opt/intel/compilers_and_libraries/mac/daal/lib(N-/)
-  /opt/intel/compilers_and_libraries/mac/ipp/lib(N-/)
-  /opt/intel/compilers_and_libraries/mac/mkl/lib(N-/)
-  /opt/intel/compilers_and_libraries/mac/tbb/lib(N-/)
-  /Developer/NVIDIA/CUDA/lib(N-/)
-  ${dyld_library_path}
-)
 library_path=(
-  /opt/intel/compilers_and_libraries/mac/lib(N-/)
-  /opt/intel/compilers_and_libraries/mac/tbb/lib(N-/)
-  /opt/intel/compilers_and_libraries/mac/daal/lib(N-/)
-  /opt/intel/compilers_and_libraries/mac/ipp/lib(N-/)
-  /opt/intel/compilers_and_libraries/mac/mkl/lib(N-/)
-  /opt/intel/compilers_and_libraries/mac/tbb/lib(N-/)
   ${library_path}
 )
 
-# Intel® C++ compilers runtime
-classpath=(
-  /opt/intel/compilers_and_libraries/mac/daal/lib/daal.jar
-  ${classpath}
-)
-daalroot=(
-  /opt/intel/compilers_and_libraries/mac/daal
-  ${daalroot}
-)
-intel_license_file=(
-  /opt/intel/licenses
-  ${intel_license_file}
-)
-intel_pythonhome=(
-  /opt/intel/debugger_2017/python/intel64
-  ${intel_pythonhome}
-)
-ipproot=(
-  /opt/intel/compilers_and_libraries/mac/ipp
-  ${ipproot}
-)
-mklroot=(
-  /opt/intel/compilers_and_libraries/mac/mkl
-  ${mklroot}
-)
-tbbroot=(
-  /opt/intel/compilers_and_libraries/mac/tbb
-  ${tbbroot}
-)
-nlspath=(
-  /opt/intel/compilers_and_libraries/mac/lib/locale/en_US(N-/)
-  /opt/intel/compilers_and_libraries/mac/mkl/lib/locale/en_US(N-/)
-  ${nlspath}
-)
-cpath=(
-  /opt/intel/compilers_and_libraries_2017.0.065/mac/ipp/include(N-/)
-  /opt/intel/compilers_and_libraries_2017.0.065/mac/mkl/include(N-/)
-  /opt/intel/compilers_and_libraries_2017.0.065/mac/tbb/include(N-/)
-  /opt/intel/compilers_and_libraries_2017.0.065/mac/daal/include(N-/)
-  /usr/local/include(N-/)
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include(N-/)
-  ${cpath}
-)
+# Evaluate system PATH
+if [ -x /usr/libexec/path_helper ]; then
+  eval `/usr/libexec/path_helper -s` ## exec
+fi
 
 # }}}
 # -----------------------------------------------------------------------------
